@@ -36,9 +36,10 @@ def reward_function(params):
         speed_diff = abs(target_speed - speed)
         reward_speed = math.exp(-speed_diff)
 
-        reward = reward_distance + 4 * reward_direction + 2 * reward_speed
+        # reward = reward_distance + 4 * reward_direction + 2 * reward_speed
+        reward = reward_direction * (4 + (2 * reward_speed))
 
-        print('reward_distance: ', reward_distance)
+        # print('reward_distance: ', reward_distance)
         print('reward_direction: ', 4 * reward_direction)
         print('reward_speed: ', 2 * reward_speed)
 
@@ -46,7 +47,8 @@ def reward_function(params):
         progress = params['progress']
         TOTAL_NUM_STEPS = 180
         if (steps % 60) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-            reward += 10
+            reward += 5
+            print('reward +10 for efficiency')
         print('reward final result: ', reward)
 
     return float(min(1e3, max(reward, 1e-3)))
