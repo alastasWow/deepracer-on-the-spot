@@ -14,7 +14,7 @@ def reward_function(params):
 
         prev_point = (params['x'], params['y'])
         l_waypoints = len(waypoints)
-        next_point = waypoints[(closest_waypoints[0] + 3) % l_waypoints]
+        next_point = waypoints[(closest_waypoints[0] + (l_waypoints//10)) % l_waypoints]
         track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
         track_direction = math.degrees(track_direction)
         heading = params['heading']
@@ -26,7 +26,7 @@ def reward_function(params):
         reward_direction = math.exp(-direction_diff)
 
         prev_point = waypoints[closest_waypoints[1]]
-        next_point = waypoints[(closest_waypoints[1] + 3) % l_waypoints]
+        next_point = waypoints[(closest_waypoints[1] + (l_waypoints//10)) % l_waypoints]
         track_curve = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
         track_curve = math.degrees(track_curve)
         max_v = 4
@@ -43,5 +43,6 @@ def reward_function(params):
         TOTAL_NUM_STEPS = 180
         if (steps % 60) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
             reward += 10
+        print('reward =>', reward)
 
     return float(min(1e3, max(reward, 1e-3)))
