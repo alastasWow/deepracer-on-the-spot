@@ -1,6 +1,7 @@
 import math
 
 MAX_ANGLE = 180
+TOTAL_NUM_STEPS = 100
 MAX_SPEED = 3.5
 MIN_SPEED = 1
 FORCAST = 9
@@ -57,7 +58,7 @@ class Reward:
         print('speed_diff: ', speed_diff)
         print('reward_speed: ', reward_speed)
         self.prev_speed = speed
-        w1, w2, w3 = -1, -2, -0.5
+        w1, w2, w3 = -1, -3, -1
         c = -(w1 + w2 + w3)
         # reward_direction, reward_speed, reward_steering = reward_direction, reward_speed, reward_steering
         # print(w1 * (reward_direction - 1) ** 2)
@@ -84,9 +85,8 @@ def reward_function(params):
 
     steps = params['steps']
     progress = params['progress']
-    TOTAL_NUM_STEPS = 160
-    if (steps % 40) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-        reward += 20
+    if (steps % 25) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
+        reward += 50
         print('reward +10 for efficiency')
 
     print('reward final result: ', reward)
