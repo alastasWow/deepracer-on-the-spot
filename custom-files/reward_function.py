@@ -3,7 +3,7 @@ import math
 MAX_ANGLE = 30
 MAX_SPEED = 3.5
 MIN_SPEED = 1
-FORCAST = 7
+FORCAST = 9
 
 
 class Reward:
@@ -12,7 +12,6 @@ class Reward:
         self.prev_speed = 0
 
     def reward_funciton(self, params):
-
         # distance
         # distance_from_center = params['distance_from_center']
         # track_width = params['track_width']
@@ -50,13 +49,13 @@ class Reward:
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
         reward_speed = 2 * math.exp(-(MAX_SPEED - MIN_SPEED) * speed_diff)
-        prev_speed_diff = abs(target_speed - self.prev_speed)
-        if prev_speed_diff > speed_diff and self.prev_speed > 0:
-            reward_speed += 1
+        # prev_speed_diff = abs(target_speed - self.prev_speed)
+        # if prev_speed_diff > speed_diff and self.prev_speed > 0:
+        #     reward_speed += 1
         print('reward_speed: ', reward_speed)
         self.prev_speed = speed
 
-        return round((reward_direction + reward_steering_smoothness) * reward_speed, 3)
+        return reward_direction + 2 * reward_steering_smoothness + 4 * reward_speed
 
 
 reward_state = Reward()
