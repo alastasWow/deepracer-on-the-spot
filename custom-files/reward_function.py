@@ -1,7 +1,7 @@
 import math
 
 MAX_ANGLE = 180
-MAX_SPEED = 4
+MAX_SPEED = 3.5
 MIN_SPEED = 1
 FORCAST = 9
 
@@ -38,7 +38,7 @@ class Reward:
         prev_steering_angle = self.prev_steering_angle
         steering_angle = params['steering_angle']
         steering_diff = abs(steering_angle - prev_steering_angle)
-        reward_steering = math.exp(-0.5 * steering_diff)
+        reward_steering = math.exp(-0.1 * steering_diff)
         print('steering_diff in degrees: ', steering_diff)
         print('reward_steering: ', reward_steering)
         self.prev_steering_angle = steering_angle
