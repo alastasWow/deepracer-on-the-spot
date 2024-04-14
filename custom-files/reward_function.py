@@ -28,7 +28,9 @@ class Reward:
         track_direction = math.degrees(track_direction)
         heading = params['heading']
         direction_diff = abs(track_direction - heading)
-        reward_direction = math.exp(-5 * direction_diff / MAX_ANGLE)
+        if direction_diff > MAX_ANGLE:
+            direction_diff = 360 - direction_diff
+        reward_direction = math.exp(-15 * direction_diff / MAX_ANGLE)
         print('direction_diff in degrees: ', direction_diff)
         print('reward_direction: ', reward_direction)
 
@@ -38,7 +40,7 @@ class Reward:
         steering_diff = abs(steering_angle - prev_steering_angle)
         reward_steering = math.exp(-0.5 * steering_diff)
         print('steering_diff in degrees: ', steering_diff)
-        print('reward_steering_smoothness: ', reward_steering)
+        print('reward_steering: ', reward_steering)
         self.prev_steering_angle = steering_angle
 
         # orientation
@@ -48,14 +50,22 @@ class Reward:
         target_speed = MAX_SPEED - ((MAX_SPEED - MIN_SPEED) / MAX_ANGLE) * track_curve
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
-        reward_speed = math.exp(-(MAX_SPEED - MIN_SPEED) * speed_diff)
+        reward_speed = math.exp(-1.5 * speed_diff)
         # prev_speed_diff = abs(target_speed - self.prev_speed)
         # if prev_speed_diff > speed_diff and self.prev_speed > 0:
-        #     reward_speed += 1
+        #     reward_speed = 1
         print('speed_diff: ', speed_diff)
         print('reward_speed: ', reward_speed)
         self.prev_speed = speed
-        return -5 * (reward_direction - 1) ** 2 - 5 * (reward_speed - 1) ** 2 - 5 * (reward_steering - 1) ** 2 + 5
+        w1, w2, w3 = -1, -2, -0.5
+        c = -(w1 + w2 + w3)
+        # reward_direction, reward_speed, reward_steering = reward_direction, reward_speed, reward_steering
+        # print(w1 * (reward_direction - 1) ** 2)
+        # print(w2 * (reward_speed - 1) ** 2)
+        # print(w3 * (reward_steering - 1) ** 2)
+        # print(c)
+
+        return w1 * (reward_direction - 1) ** 2 + w2 * (reward_speed - 1) ** 2 + w3 * (reward_steering - 1) ** 2 + c
 
 
 reward_state = Reward()
