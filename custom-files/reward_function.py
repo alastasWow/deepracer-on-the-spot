@@ -1,7 +1,7 @@
 import math
 
-MAX_ANGLE = 30
-MAX_SPEED = 3.5
+MAX_ANGLE = 180
+MAX_SPEED = 4
 MIN_SPEED = 1
 FORCAST = 9
 
@@ -25,37 +25,37 @@ class Reward:
         # direction
         prev_point = (params['x'], params['y'])
         track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
-        track_direction = round(math.degrees(track_direction))
+        track_direction = math.degrees(track_direction)
         heading = params['heading']
         direction_diff = abs(track_direction - heading)
-        if direction_diff > MAX_ANGLE:
-            return 1e-3
         reward_direction = math.exp(-5 * direction_diff / MAX_ANGLE)
+        print('direction_diff in degrees: ', direction_diff)
         print('reward_direction: ', reward_direction)
 
         # steering
         prev_steering_angle = self.prev_steering_angle
         steering_angle = params['steering_angle']
         steering_diff = abs(steering_angle - prev_steering_angle)
-        reward_steering_smoothness = math.exp(-0.5 * steering_diff)
-        print('reward_steering_smoothness: ', reward_steering_smoothness)
+        reward_steering = math.exp(-0.5 * steering_diff)
+        print('steering_diff in degrees: ', steering_diff)
+        print('reward_steering_smoothness: ', reward_steering)
         self.prev_steering_angle = steering_angle
 
         # orientation
         prev_point = waypoints[closest_waypoints[1]]
         track_curve = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
-        track_curve = abs(round(math.degrees(track_curve), 1))
+        track_curve = abs(math.degrees(track_curve))
         target_speed = MAX_SPEED - ((MAX_SPEED - MIN_SPEED) / MAX_ANGLE) * track_curve
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
-        reward_speed = 2 * math.exp(-(MAX_SPEED - MIN_SPEED) * speed_diff)
+        reward_speed = math.exp(-(MAX_SPEED - MIN_SPEED) * speed_diff)
         # prev_speed_diff = abs(target_speed - self.prev_speed)
         # if prev_speed_diff > speed_diff and self.prev_speed > 0:
         #     reward_speed += 1
+        print('speed_diff: ', speed_diff)
         print('reward_speed: ', reward_speed)
         self.prev_speed = speed
-
-        return reward_direction + 2 * reward_steering_smoothness + 4 * reward_speed
+        return -5 * (reward_direction - 1) ** 2 - 5 * (reward_speed - 1) ** 2 - 5 * (reward_steering - 1) ** 2 + 5
 
 
 reward_state = Reward()
@@ -76,7 +76,7 @@ def reward_function(params):
     progress = params['progress']
     TOTAL_NUM_STEPS = 160
     if (steps % 40) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-        reward += 10
+        reward += 20
         print('reward +10 for efficiency')
 
     print('reward final result: ', reward)
