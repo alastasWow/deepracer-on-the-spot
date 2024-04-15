@@ -2,9 +2,9 @@ import math
 
 MAX_ANGLE = 180
 TOTAL_NUM_STEPS = 140
-MAX_SPEED = 3.5
+MAX_SPEED = 4
 MIN_SPEED = 1
-FORCAST = 9
+FORCAST = 7
 
 
 class Reward:
@@ -55,11 +55,11 @@ class Reward:
         reward_speed = math.exp(-1.5 * speed_diff)
         print('reward_speed: ', reward_speed)
 
-        w1, w2, w3 = -1, -4, 1
+        w1, w2, w3 = -1, -4, 0
         prev_speed_diff = abs(target_speed - self.prev_speed)
         print('prev_speed_diff: ', prev_speed_diff)
         if prev_speed_diff > speed_diff:
-            w2 -= 1
+            w2 += -1
         else:
             w1 = -0.3
         self.prev_speed = speed
