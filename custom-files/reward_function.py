@@ -61,7 +61,7 @@ class Reward:
         if prev_speed_diff > speed_diff:
             w2 -= 1
         else:
-            w1 = 0.3
+            w1 = -0.3
         self.prev_speed = speed
         c = -(w1 + w2)
         print('weights: (w1, w2, w3, c) = ', w1, w2, w3, c)
