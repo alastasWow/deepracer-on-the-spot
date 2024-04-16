@@ -1,7 +1,7 @@
 import math
 
 MAX_ANGLE = 90
-TOTAL_NUM_STEPS = 120
+TOTAL_NUM_STEPS = 100
 MAX_SPEED = 4
 MIN_SPEED = 1
 FORCAST = 6
@@ -93,8 +93,9 @@ def reward_function(params):
     steps = params['steps']
     progress = params['progress']
     if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-        reward += (steps / TOTAL_NUM_STEPS) * (TOTAL_NUM_STEPS / 10)
-        print('reward +3 for efficiency')
+        bonus = (steps / TOTAL_NUM_STEPS) * (TOTAL_NUM_STEPS / 10)
+        reward += bonus
+        print(f'reward {bonus} for efficiency')
 
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
