@@ -92,8 +92,8 @@ def reward_function(params):
 
     steps = params['steps']
     progress = params['progress']
-    if (steps % 30) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-        reward += 3
+    if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
+        reward += (steps / TOTAL_NUM_STEPS) * (TOTAL_NUM_STEPS / 10)
         print('reward +3 for efficiency')
 
     print('reward final result: ', reward)
