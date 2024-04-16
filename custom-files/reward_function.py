@@ -1,8 +1,8 @@
 import math
 
 MAX_ANGLE = 90
-TOTAL_NUM_STEPS = 100
-MAX_SPEED = 4
+TOTAL_NUM_STEPS = 120
+MAX_SPEED = 3.5
 MIN_SPEED = 1
 FORCAST = 6
 
@@ -26,7 +26,12 @@ class Reward:
         # direction
         track_direction = math.atan2(next_point[1] - params['y'], next_point[0] - params['x'])
         track_direction = math.degrees(track_direction)
-        heading = params['heading']
+        steering_angle = params['steering_angle']
+        if abs(steering_angle - self.prev_steering_angle) <= 15:
+            heading = params['heading'] + steering_angle
+        else:
+            heading = params['heading'] + 0.4 * steering_angle
+        self.prev_steering_angle = steering_angle
         direction_diff = abs(track_direction - heading)
         if direction_diff > 180:
             direction_diff = 360 - direction_diff
