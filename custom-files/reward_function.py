@@ -1,9 +1,9 @@
 import math
 
 MAX_ANGLE = 90
-TOTAL_NUM_STEPS = 140
+TOTAL_NUM_STEPS = 120
 MAX_SPEED = 4
-MIN_SPEED = 1
+MIN_SPEED = 1.1
 FORCAST = 6
 
 
@@ -44,7 +44,7 @@ class Reward:
         print('speed_diff: ', speed_diff)
         reward_speed = speed_diff / (MAX_SPEED - MIN_SPEED)
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
-        c = 1
+        c = 2
         print(f'formula for total reward: -{c}x2-{c}y2+{c}')
         return -c * reward_direction ** 2 - c * reward_speed ** 2 + c
 
@@ -92,8 +92,8 @@ def reward_function(params):
 
     steps = params['steps']
     progress = params['progress']
-    if (steps % 35) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-        reward += 3.5
+    if (steps % 30) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
+        reward += 20
         print('reward +3.5 for efficiency')
 
     print('reward final result: ', reward)
