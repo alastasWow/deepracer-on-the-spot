@@ -27,9 +27,10 @@ class Reward:
         track_direction = math.atan2(next_point[1] - params['y'], next_point[0] - params['x'])
         track_direction = math.degrees(track_direction)
         heading = params['heading']
-        direction_diff = abs(track_direction - heading) % MAX_ANGLE
+        direction_diff = abs(track_direction - heading)
+        if direction_diff > 180:
+            direction_diff = 360 - direction_diff
         print('direction_diff in degrees: ', direction_diff)
-        # reward_direction = math.exp(-15 * direction_diff / MAX_ANGLE)
         reward_direction = direction_diff / MAX_ANGLE
         print('reward_direction formula: direction_diff / MAX_ANGLE: ', reward_direction)
 
@@ -38,6 +39,8 @@ class Reward:
         n_w = waypoints[closest_waypoints[1]]
         track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(next_point[1] - p_w[1], next_point[0] - p_w[0])
         track_curve = abs(math.degrees(track_curve))
+        if track_curve > 180:
+            track_curve = 360 - track_curve
         target_speed = MAX_SPEED - ((MAX_SPEED - MIN_SPEED) / MAX_ANGLE) * track_curve
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
