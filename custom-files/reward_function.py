@@ -54,7 +54,9 @@ class Reward:
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
         c = 1
         print(f'formula for total reward: -{c}x2-{c}y2+{c}')
-        return -c * reward_direction ** 2 - c * reward_speed ** 2 + c
+        w = 1 if params['steps'] == 0 else params['progress'] / params['steps']
+        print('progress / steps', w)
+        return (-c * reward_direction ** 2 - c * reward_speed ** 2 + c) * w
 
         # steering
         # prev_steering_angle = self.prev_steering_angle
@@ -98,14 +100,14 @@ def reward_function(params):
 
     reward = reward_state.reward_funciton(params)
 
-    steps = params['steps']
-    progress = params['progress']
-    if progress % 20 == 0:
-        bonus = 10 if (progress > (steps / TOTAL_NUM_STEPS) * 100) else 0
-    # if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-    #     bonus = (steps / TOTAL_NUM_STEPS) * (TOTAL_NUM_STEPS / 10)
-        reward += bonus
-        print(f'reward {bonus} for efficiency')
+    # steps = params['steps']
+    # progress = params['progress']
+    # if progress % 20 == 0:
+    #     bonus = 10 if (progress > (steps / TOTAL_NUM_STEPS) * 100) else 0
+    # # if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
+    # #     bonus = (steps / TOTAL_NUM_STEPS) * (TOTAL_NUM_STEPS / 10)
+    #     reward += bonus
+    #     print(f'reward {bonus} for efficiency')
 
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
