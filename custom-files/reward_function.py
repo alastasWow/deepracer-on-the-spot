@@ -2,9 +2,14 @@ import math
 
 MAX_ANGLE = 90
 TOTAL_NUM_STEPS = 120
-MAX_SPEED = 4
+MAX_SPEED = 3.5
 MIN_SPEED = 1
-FORCAST = 5
+
+FORCAST = 20
+
+
+def dist(p1, p2, p3):
+    return abs((p2[0] - p1[0]) * (p3[1] - p1[1]) - (p3[0] - p1[0]) * (p2[1] - p1[1])) / math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 
 class Reward:
@@ -20,7 +25,26 @@ class Reward:
 
         waypoints = params['waypoints']
         closest_waypoints = params['closest_waypoints']
-        next_point = waypoints[(closest_waypoints[1] + FORCAST) % len(waypoints)]
+        potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
+        car_pos = (params['x'], params['y'])
+        if potential_forcast_index > closest_waypoints[1]:
+            waypoints_middle = [i for i in range(potential_forcast_index, closest_waypoints[1] - 1, -1)]
+        else:
+            waypoints_middle = \
+                [i for i in range(potential_forcast_index, -1, -1)] \
+                + [i for i in range(len(waypoints) - 1, closest_waypoints[1] - 1, -1)]
+        for i in range(len(waypoints_middle)):
+            out_of_track = False
+            for j in range(i + 1, len(waypoints_middle)):
+                d = dist(waypoints[waypoints_middle[i]], car_pos, waypoints[waypoints_middle[j]])
+                if d > (params['track_width'] / 2):
+                    out_of_track = True
+                    break
+            if not out_of_track:
+                potential_forcast_index = waypoints_middle[i]
+                break
+        next_point = waypoints[potential_forcast_index]
+        print('projected waypoint: ', potential_forcast_index)
 
         # direction
         track_direction = math.atan2(next_point[1] - params['y'], next_point[0] - params['x'])
@@ -48,7 +72,7 @@ class Reward:
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
         c = 1
         print(f'formula for total reward: -{c}x2-{c}y2+{c}')
-        return -c * reward_direction ** 2 - c * reward_speed ** 2 + c
+        return -c * (reward_direction - 1) ** 2 - c * (reward_speed - 1) ** 2 + c
 
         # steering
         # prev_steering_angle = self.prev_steering_angle
@@ -92,12 +116,12 @@ def reward_function(params):
 
     reward = reward_state.reward_funciton(params)
 
-    steps = params['steps']
-    progress = params['progress']
-    if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and (progress / 100) > (steps / TOTAL_NUM_STEPS):
-        bonus = 10
-        reward += bonus
-        print(f'reward {bonus} for efficiency')
+    # steps = params['steps']
+    # progress = params['progress']
+    # if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and (progress / 100) > (steps / TOTAL_NUM_STEPS):
+    #     bonus = 10
+    #     reward += bonus
+    #     print(f'reward {bonus} for efficiency')
 
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
