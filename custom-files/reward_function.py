@@ -70,9 +70,8 @@ class Reward:
         print('speed_diff: ', speed_diff)
         reward_speed = speed_diff / (MAX_SPEED - MIN_SPEED)
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
-        c = 5
-        print(f'formula for total reward: -{c}(x-1)^2-{c}(y-1)^2+{c}')
-        return -c * reward_direction ** 2 - c * reward_speed ** 2 + 1
+        print(f'formula for total reward: -x^2-y^2+2')
+        return - reward_direction ** 2 - reward_speed ** 2 + 2.001
 
         # steering
         # prev_steering_angle = self.prev_steering_angle
