@@ -1,10 +1,10 @@
 import math
 
 MAX_TRACK_CURVE = 90
-TOTAL_NUM_STEPS = 120
+# TOTAL_NUM_STEPS = 120
 MAX_SPEED = 3.5
 MIN_SPEED = 1
-
+DELTA_DIST = 0.05
 FORCAST = 20
 
 
@@ -37,7 +37,7 @@ class Reward:
             out_of_track = False
             for j in range(i + 1, len(waypoints_middle)):
                 d = dist(waypoints[waypoints_middle[i]], car_pos, waypoints[waypoints_middle[j]])
-                if d > (params['track_width'] / 2):
+                if d - (params['track_width'] / 2) >= DELTA_DIST:
                     out_of_track = True
                     break
             if not out_of_track:
@@ -82,49 +82,23 @@ class Reward:
         # print('reward_steering: ', reward_steering)
         # self.prev_steering_angle = steering_angle
 
-        # w1, w2, w3 = 1, 4, 0
-        # prev_speed_diff = abs(target_speed - self.prev_speed)
-        # print('prev_speed_diff: ', prev_speed_diff)
-        # if prev_speed_diff > speed_diff:
-        #     w2 += 1
-        # else:
-        #     w1 = 0.3
-        # self.prev_speed = speed
-        # c = -(w1 + w2)
-        # print('weights: (w1, w2, w3, c) = ', w1, w2, w3, c)
-        # reward_direction, reward_speed, reward_steering = reward_direction, reward_speed, reward_steering
-        # print(w1 * (reward_direction - 1) ** 2)
-        # print(w2 * (reward_speed - 1) ** 2)
-        # print(w3 * (reward_steering - 1) ** 2)
-        # print(c)
-
-        # return w1 * (reward_direction - 1) ** 2 + w2 * (reward_speed - 1) ** 2 + w3 * reward_steering + c
-
 
 reward_state = Reward()
 
 
 def reward_function(params):
     print('params =>', params)
-
     all_wheels_on_track = params['all_wheels_on_track']
-    is_offtrack = params['is_offtrack']
-
-    if is_offtrack or not all_wheels_on_track:
-        return 1e-3
-
-    reward = reward_state.reward_funciton(params)
-
-    steps = params['steps']
-    progress = params['progress']
-    if progress == 100:
-        bonus = (progress / steps) * 100
-        reward += bonus
-        print(f'reward {bonus} for efficiency')
-    # if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and (progress / 100) > (steps / TOTAL_NUM_STEPS):
-    #     bonus = 10
-    #     reward += bonus
-    #     print(f'reward {bonus} for efficiency')
-
+    track_width = params['track_width']
+    distance_from_center = params['distance_from_center']
+    reward = 1e-3
+    if all_wheels_on_track and (0.5 * track_width - distance_from_center) >= DELTA_DIST:
+        reward = reward_state.reward_funciton(params)
+        # steps = params['steps']
+        # progress = params['progress']
+        # if progress == 100:
+        #     bonus = (progress / steps) * 100
+        #     reward += bonus
+        #     print(f'reward {bonus} for efficiency')
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
