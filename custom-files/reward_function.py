@@ -1,6 +1,6 @@
 import math
 
-MAX_ANGLE = 180
+MAX_TRACK_CURVE = 90
 TOTAL_NUM_STEPS = 120
 MAX_SPEED = 3.5
 MIN_SPEED = 1
@@ -54,8 +54,8 @@ class Reward:
         if direction_diff > 180:
             direction_diff = 360 - direction_diff
         print('direction_diff in degrees: ', direction_diff)
-        reward_direction = direction_diff / MAX_ANGLE
-        print('reward_direction formula: direction_diff / MAX_ANGLE: ', reward_direction)
+        reward_direction = direction_diff / 180
+        print('reward_direction formula: direction_diff / 180: ', reward_direction)
 
         # orientation
         p_w = waypoints[closest_waypoints[0]]
@@ -64,7 +64,7 @@ class Reward:
         track_curve = abs(math.degrees(track_curve))
         if track_curve > 180:
             track_curve = 360 - track_curve
-        target_speed = MAX_SPEED - ((MAX_SPEED - MIN_SPEED) / MAX_ANGLE) * track_curve
+        target_speed = MAX_SPEED - ((MAX_SPEED - MIN_SPEED) / MAX_TRACK_CURVE) * track_curve
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
         print('speed_diff: ', speed_diff)
