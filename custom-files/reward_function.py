@@ -3,7 +3,7 @@ import math
 MAX_TRACK_CURVE = 90
 # TOTAL_NUM_STEPS = 120
 MAX_SPEED = 3.5
-MIN_SPEED = 1
+MIN_SPEED = 0.5
 DELTA_DIST = 0.05
 FORCAST = 20
 
@@ -71,7 +71,7 @@ class Reward:
         reward_speed = speed_diff / (MAX_SPEED - MIN_SPEED)
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
         print(f'formula for total reward: -x^2-y^2+1')
-        return - 5 * reward_direction ** 2 - 5 * reward_speed ** 2 + 1.001
+        return - reward_direction ** 2 - reward_speed ** 2 + 1.001
 
         # steering
         # prev_steering_angle = self.prev_steering_angle
@@ -94,11 +94,11 @@ def reward_function(params):
     reward = 1e-3
     if all_wheels_on_track and (0.5 * track_width - distance_from_center) >= DELTA_DIST:
         reward = reward_state.reward_funciton(params)
-        # steps = params['steps']
-        # progress = params['progress']
-        # if progress == 100:
-        #     bonus = (progress / steps) * 100
-        #     reward += bonus
-        #     print(f'reward {bonus} for efficiency')
+        steps = params['steps']
+        progress = params['progress']
+        if progress == 100:
+            bonus = (progress / steps) * 100
+            reward += bonus
+            print(f'reward {bonus} for efficiency')
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
