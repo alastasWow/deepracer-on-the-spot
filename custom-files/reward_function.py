@@ -1,6 +1,6 @@
 import math
 
-MAX_ANGLE = 90
+MAX_ANGLE = 180
 TOTAL_NUM_STEPS = 120
 MAX_SPEED = 3.5
 MIN_SPEED = 1
@@ -47,7 +47,7 @@ class Reward:
         print('projected waypoint: ', potential_forcast_index)
 
         # direction
-        track_direction = math.atan2(next_point[1] - params['y'], next_point[0] - params['x'])
+        track_direction = math.atan2(next_point[1] - car_pos[1], next_point[0] - car_pos[0])
         track_direction = math.degrees(track_direction)
         heading = params['heading'] + params['steering_angle']
         direction_diff = abs(track_direction - heading)
@@ -70,9 +70,9 @@ class Reward:
         print('speed_diff: ', speed_diff)
         reward_speed = speed_diff / (MAX_SPEED - MIN_SPEED)
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
-        c = 1
-        print(f'formula for total reward: -{c}x2-{c}y2+{c}')
-        return -c * (reward_direction - 1) ** 2 - c * (reward_speed - 1) ** 2 + c
+        c = 5
+        print(f'formula for total reward: -{c}(x-1)^2-{c}(y-1)^2+{c}')
+        return -c * reward_direction ** 2 - c * reward_speed ** 2 + 1
 
         # steering
         # prev_steering_angle = self.prev_steering_angle
