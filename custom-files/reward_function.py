@@ -1,7 +1,7 @@
 import math
 
 MAX_TRACK_CURVE = 90
-# TOTAL_NUM_STEPS = 120
+TOTAL_NUM_STEPS = 120
 MAX_SPEED = 4
 MIN_SPEED = 1
 DELTA_DIST = 0.05
@@ -96,9 +96,8 @@ def reward_function(params):
         reward = reward_state.reward_funciton(params)
         steps = params['steps']
         progress = params['progress']
-        if progress == 100:
-            bonus = (progress / steps) * 100
-            reward += bonus
-            print(f'reward {bonus} for efficiency')
+        if (steps % (TOTAL_NUM_STEPS//4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
+            reward += 10.0
+            print(f'reward 10 for efficiency')
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
