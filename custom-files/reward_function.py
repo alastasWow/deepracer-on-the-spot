@@ -1,6 +1,5 @@
 import math
 
-TOTAL_NUM_STEPS = 120
 MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
@@ -79,17 +78,17 @@ class Reward:
         print('reward_speed:', reward_speed)
 
         # steering
-        # prev_steering_angle = self.prev_steering_angle if self.prev_steering_angle is not None else 0
-        # steering_angle = params['steering_angle']
-        # steering_diff = abs(steering_angle - prev_steering_angle)
-        # print('steering_diff in degrees:', steering_diff)
-        # if steering_diff > 30:
-        #     return 1e-3
-        # reward_steering = 1 - (steering_diff / 30)**4
-        # print('reward_steering:', reward_steering)
-        # self.prev_steering_angle = steering_angle
+        prev_steering_angle = self.prev_steering_angle if self.prev_steering_angle is not None else 0
+        steering_angle = params['steering_angle']
+        steering_diff = abs(steering_angle - prev_steering_angle)
+        print('steering_diff in degrees:', steering_diff)
+        if steering_diff > 30:
+            return 1e-3
+        reward_steering = 10 * (1 - (steering_diff / 30))
+        print('reward_steering:', reward_steering)
+        self.prev_steering_angle = steering_angle
 
-        return reward_direction * reward_speed
+        return reward_direction * reward_speed + reward_steering
 
 
 reward_state = Reward()
