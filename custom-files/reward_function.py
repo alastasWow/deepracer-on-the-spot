@@ -2,8 +2,10 @@ import math
 
 MAX_TRACK_CURVE = 90
 TOTAL_NUM_STEPS = 120
-MAX_SPEED = 4
+MAX_SPEED = 3.5
 MIN_SPEED = 1
+MAX_STEERING = 30
+MIN_STEERING = -30
 DELTA_DIST = 0.05
 FORCAST = 20
 
@@ -15,6 +17,7 @@ def dist(p1, p2, p3):
 class Reward:
     def __init__(self):
         self.prev_speed = 0
+        self.prev_steering_angle = 0
 
     def reward_funciton(self, params):
         # distance
@@ -54,7 +57,7 @@ class Reward:
         if direction_diff > 180:
             direction_diff = 360 - direction_diff
         print('direction_diff in degrees: ', direction_diff)
-        reward_direction = direction_diff / 180
+        reward_direction = 1 - (direction_diff / 180) ** 0.5
         print('reward_direction formula: direction_diff / 180: ', reward_direction)
 
         # orientation
@@ -68,19 +71,20 @@ class Reward:
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
         print('speed_diff: ', speed_diff)
-        reward_speed = speed_diff / (MAX_SPEED - MIN_SPEED)
+        reward_speed = 1 - (speed_diff / (MAX_SPEED - MIN_SPEED)) ** 0.5
         print('reward_speed formula: speed_diff / (MAX_SPEED - MIN_SPEED): ', reward_speed)
-        print(f'formula for total reward: -x^2-y^2+1')
-        return - reward_direction ** 2 - reward_speed ** 2 + 1.001
 
         # steering
-        # prev_steering_angle = self.prev_steering_angle
-        # steering_angle = params['steering_angle']
-        # steering_diff = abs(steering_angle - prev_steering_angle)
-        # print('steering_diff in degrees: ', steering_diff)
-        # reward_steering = math.exp(-0.1 * steering_diff)
-        # print('reward_steering: ', reward_steering)
-        # self.prev_steering_angle = steering_angle
+        prev_steering_angle = self.prev_steering_angle
+        steering_angle = params['steering_angle']
+        steering_diff = abs(steering_angle - prev_steering_angle)
+        print('steering_diff in degrees: ', steering_diff)
+        reward_steering = 1 - (steering_diff / (MAX_STEERING - MIN_STEERING)) ** 2
+        print('reward_steering: ', reward_steering)
+        self.prev_steering_angle = steering_angle
+
+        w1, w2, w3 = 1, 1, 1
+        return w1 * reward_direction + w2 * reward_speed + w3 * reward_steering
 
 
 reward_state = Reward()
@@ -96,8 +100,8 @@ def reward_function(params):
         reward = reward_state.reward_funciton(params)
         steps = params['steps']
         progress = params['progress']
-        if (steps % (TOTAL_NUM_STEPS//4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
-            reward += 10.0
+        if (steps % (TOTAL_NUM_STEPS // 4)) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100:
+            reward += 20
             print(f'reward 10 for efficiency')
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
