@@ -117,9 +117,5 @@ def reward_function(params):
             time = steps / STEPS_PER_SECOND
             print('time:', time)
             reward += 300 * math.exp(10 - time)
-        else:
-            print('penalized')
-            reward -= 0.5 * reward_state.score
-            return reward
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
