@@ -847,6 +847,7 @@ framework_global = None
 #
 # -------------------------------------------------------------------------------
 
+
 def get_reward(f: Framework):
     reward = 1e-3
     f.print_debug()
