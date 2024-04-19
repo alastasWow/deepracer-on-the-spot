@@ -851,12 +851,11 @@ def get_reward(f: Framework):
     reward = 1e-3
     f.print_debug()
     if f.all_wheels_on_track and f.distance_from_extreme_edge > 0:
-        speed_factor = f.progress_speed
-        if abs(f.skew) > 40:
-            speed_factor = speed_factor / 2
-        elif abs(f.skew) < 20 and abs(f.slide) < 15:
-            speed_factor += 1
-        return speed_factor / f.max_possible_track_speed * f.projected_distance
+        diff_speed = (f.progress_speed - f.track_speed) / f.max_possible_track_speed
+        reward = math.exp(2 * diff_speed) * f.projected_distance
     if f.is_final_step and f.is_complete_lap:
-        reward += 100 / f.time
+        bonus = 300 * math.exp(10 - f.time)
+        print('final step', bonus)
+        reward += bonus
+    print('reward final result: ', reward)
     return reward
