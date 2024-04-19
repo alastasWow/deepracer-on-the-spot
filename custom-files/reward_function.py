@@ -49,6 +49,7 @@ class Reward:
             prev_steering_angle = self.prev_steering_angle
         else:
             prev_steering_angle = params['steering_angle']
+        self.prev_steering_angle = params['steering_angle']
         diff_steering = abs(prev_steering_angle - params['steering_angle'])
         print('diff_steering in degrees:', diff_steering)
         if diff_steering > 20:
@@ -61,9 +62,7 @@ class Reward:
         direction_diff = abs(track_direction - heading)
         if direction_diff > 180:
             direction_diff = 360 - direction_diff
-        print('direction_diff normalized:', direction_diff / 40)
-        if direction_diff > 40:
-            return reward
+        print('direction_diff normalized:', direction_diff / 180)
 
         # speed
         p_w = waypoints[closest_waypoints[0]]
@@ -88,7 +87,7 @@ class Reward:
         # reward_steering = 10 * (1 - (steering_diff / 30))
         # print('reward_steering:', reward_steering)
         # self.prev_steering_angle = steering_angle
-        reward = 5 * math.exp(-10 * (direction_diff / 40) ** 2 - 10 * speed_diff / (MAX_SPEED - MIN_SPEED) ** 2)
+        reward = 5 * math.exp(-10 * (direction_diff / 180) ** 2 - 10 * speed_diff / (MAX_SPEED - MIN_SPEED) ** 2)
         self.score += reward
         return reward
 
