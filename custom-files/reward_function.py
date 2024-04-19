@@ -81,7 +81,6 @@ class Reward:
         speed_diff = abs(target_speed - speed)
         print('speed_diff: ', speed_diff)
 
-
         # steering
         # prev_steering_angle = self.prev_steering_angle if self.prev_steering_angle is not None else 0
         # steering_angle = params['steering_angle']
@@ -115,6 +114,6 @@ def reward_function(params):
     if is_final_step:
         if is_complete_lap:
             time = steps / STEPS_PER_SECOND
-            reward += 1000 / time
+            reward += 10 * math.exp(10 - time)
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
