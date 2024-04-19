@@ -52,8 +52,6 @@ class Reward:
         self.prev_steering_angle = params['steering_angle']
         diff_steering = abs(prev_steering_angle - params['steering_angle'])
         print('diff_steering in degrees:', diff_steering)
-        if diff_steering > 20:
-            return reward
 
         # direction
         track_direction = math.atan2(n_point[1] - car_pos[1], n_point[0] - car_pos[0])
