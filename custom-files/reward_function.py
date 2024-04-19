@@ -114,6 +114,7 @@ def reward_function(params):
     if is_final_step:
         if is_complete_lap:
             time = steps / STEPS_PER_SECOND
-            reward += 10 * math.exp(10 - time)
+            print('time: ', time)
+            reward += 20 * math.exp(10 - time)
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
