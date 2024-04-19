@@ -60,7 +60,8 @@ class Reward:
         print('diff_heading in degrees:', diff_heading)
         if diff_heading > 20:
             return 1e-3
-        w = 5 - (0.25 * diff_heading)
+        # w = 5 - (0.25 * diff_heading)
+        w = 5
         print('weight:', w)
         direction_diff = abs(track_direction - heading)
         if direction_diff > 180:
@@ -106,15 +107,19 @@ def reward_function(params):
     distance_from_extreme_edge = float(max(0.0, (track_width + VEHICLE_WIDTH) / 2 - distance_from_center))
     if all_wheels_on_track and distance_from_extreme_edge > 0:
         reward = reward_state.reward_function(params)
-    is_complete_lap = params['progress'] == 100
+    is_complete_lap = int(params['progress']) == 100
     is_offtrack = params['is_offtrack']
     is_reversed = params['is_reversed']
-    is_final_step = is_complete_lap or is_offtrack or is_reversed
+    is_crashed = params['is_crashed']
+    is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
     steps = params['steps']
     if is_final_step:
+        print('final step')
         if is_complete_lap:
             time = steps / STEPS_PER_SECOND
             print('time: ', time)
             reward += 20 * math.exp(10 - time)
+        else:
+            reward = 1e-3
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
