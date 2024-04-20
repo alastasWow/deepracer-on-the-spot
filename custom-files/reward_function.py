@@ -54,23 +54,30 @@ class Reward:
         print('diff_steering in degrees:', diff_steering)
 
         # direction
-        track_direction = math.atan2(n_point[1] - car_pos[1], n_point[0] - car_pos[0])
-        track_direction = math.degrees(track_direction)
+        car_direction = math.atan2(n_point[1] - car_pos[1], n_point[0] - car_pos[0])
+        car_direction = math.degrees(car_direction)
         heading = params['heading']
-        direction_diff = abs(track_direction - heading)
+        direction_diff = abs(car_direction - heading)
         if direction_diff > 180:
             direction_diff = 360 - direction_diff
         print('direction_diff normalized:', direction_diff / 180)
 
         # speed
-        p_w = waypoints[closest_waypoints[0]]
+        # p_w = waypoints[closest_waypoints[0]]
         n_w = waypoints[closest_waypoints[1]]
-        track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(n_point[1] - p_w[1], n_point[0] - p_w[0])
-        track_curve = abs(math.degrees(track_curve))
-        if track_curve > 180:
-            track_curve = 360 - track_curve
-        print('track_curve', track_curve)
-        target_speed = MAX_SPEED * math.exp(-20 * (track_curve / 180) ** 2)
+        track_direction = math.atan2(n_point[1] - n_w[1], n_point[0] - n_w[0])
+        track_direction = math.degrees(track_direction)
+        track_direction_diff = abs(track_direction - car_direction)
+        # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(n_point[1] - p_w[1], n_point[0] - p_w[0])
+        # track_curve = abs(math.degrees(track_curve))
+        # if track_curve > 180:
+        #     track_curve = 360 - track_curve
+        # print('track_curve', track_curve)
+        # target_speed = MAX_SPEED * math.exp(-20 * (track_curve / 180) ** 2)
+        if track_direction_diff > 180:
+            track_direction_diff = 360 - track_direction_diff
+        print('track_direction_diff normalized:', track_direction_diff / 180)
+        target_speed = MAX_SPEED * math.exp(-20 * (track_direction_diff / 180) ** 2)
         speed = params['speed']
         speed_diff = abs(target_speed - speed)
         print('speed_diff normalized: ', speed_diff / (MAX_SPEED - MIN_SPEED))
@@ -113,6 +120,6 @@ def reward_function(params):
             print('bonus')
             time = steps / STEPS_PER_SECOND
             print('time:', time)
-            reward += 300 * math.exp(10 - time)
+            reward += 100 * math.exp(7 - time)
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
