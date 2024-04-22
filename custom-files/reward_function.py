@@ -37,8 +37,7 @@ def dist(p1, p2, p3):
 
 class Reward:
     def __init__(self):
-        self.score = 0
-        # self.prev_steering_angle = None
+        self.prev_steering_angle = None
 
     def reward_function(self, params):
         waypoints = params['waypoints']
@@ -85,22 +84,26 @@ class Reward:
         print('============')
 
         # speed
-        # p_w = waypoints[closest_waypoints[0]]
-        # n_w = waypoints[closest_waypoints[1]]
-        # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(forcast_car[1] - p_w[1], forcast_car[0] - p_w[0])
-        # track_curve = abs(math.degrees(track_curve))
-        # if track_curve > 180:
-        #     track_curve = 360 - track_curve
-        # print('track_curve:', track_curve)
-        target_speed = (diff_index / FORCAST) * ((MAX_SPEED - MIN_SPEED) * math.exp(-20 * (direction_diff / 180) ** 2)) + MIN_SPEED
+        p_w = waypoints[closest_waypoints[0]]
+        n_w = waypoints[closest_waypoints[1]]
+        curve_forcast = waypoints[(closest_waypoints[1] + 6) % len(waypoints)]
+        track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(curve_forcast[1] - p_w[1], curve_forcast[0] - p_w[0])
+        track_curve = abs(math.degrees(track_curve))
+        if track_curve > 180:
+            track_curve = 360 - track_curve
+        print('track_curve:', track_curve)
+        # if direction_diff <= 90:
+        # target_speed = (MAX_SPEED - MIN_SPEED) * math.exp(-5 * (track_curve / 90) ** 2) + MIN_SPEED
+        # else:
+        #     target_speed = -4
+        target_speed = MAX_SPEED - ((MAX_SPEED - MIN_SPEED) / 90) * track_curve
         print('target_speed:', target_speed)
         speed_diff = abs(target_speed - params['speed'])
         print('speed_diff:', speed_diff)
         print('============')
 
         x, y = (direction_diff / 180), speed_diff / (MAX_SPEED - MIN_SPEED)
-        reward = math.exp((-10 * x ** 2 - 10 * y ** 2)) + 0.001
-        self.score += reward
+        reward = - 5 * x ** 2 - 5 * y ** 2 + 1
         return reward
 
 
@@ -124,9 +127,10 @@ def reward_function(params):
     if is_final_step:
         print('final step')
         if is_complete_lap:
-            print('bonus')
             time = steps / STEPS_PER_SECOND
             print('time:', time)
-            reward += 30 * math.exp(7 - time)
+            bonus = 50 * math.exp(7 - time)
+            print('bonus:', bonus)
+            reward += bonus
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
