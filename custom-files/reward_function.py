@@ -92,7 +92,7 @@ class Reward:
         # if track_curve > 180:
         #     track_curve = 360 - track_curve
         # print('track_curve:', track_curve)
-        target_speed = ((MAX_SPEED - MIN_SPEED) * math.exp(-20 * (direction_diff / 180) ** 2) + MIN_SPEED) * diff_index / FORCAST
+        target_speed = (diff_index / FORCAST) * ((MAX_SPEED - MIN_SPEED) * math.exp(-20 * (direction_diff / 180) ** 2)) + MIN_SPEED
         print('target_speed:', target_speed)
         speed_diff = abs(target_speed - params['speed'])
         print('speed_diff:', speed_diff)
@@ -127,8 +127,6 @@ def reward_function(params):
             print('bonus')
             time = steps / STEPS_PER_SECOND
             print('time:', time)
-            reward += 50 * math.exp(7 - time)
-        else:
-            reward -= reward_state.score / 2
+            reward += 30 * math.exp(7 - time)
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
