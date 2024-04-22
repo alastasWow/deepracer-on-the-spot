@@ -4,7 +4,7 @@ MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
-FORCAST = 10
+FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 
@@ -25,12 +25,10 @@ def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
         if not out_of_track:
             forcast_index = waypoints_middle[i]
             break
-    print('============')
     print('projected waypoint:', forcast_index)
     diff_index = forcast_index - next_waypoint
     print('diff_index:', diff_index)
-    print('============')
-    return forcast_index
+    return forcast_index, diff_index
 
 
 def dist(p1, p2, p3):
@@ -48,9 +46,11 @@ class Reward:
         track_width = params['track_width']
         potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
         car_pos = (params['x'], params['y'])
+        print('============')
         print('car forcast')
-        forcast_car_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
+        forcast_car_index, diff_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
         forcast_car = waypoints[forcast_car_index]
+        print('============')
 
         # print('track forcast')
         # forcast_track_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, waypoints[closest_waypoints[0]])
@@ -87,20 +87,12 @@ class Reward:
         # speed
         # p_w = waypoints[closest_waypoints[0]]
         # n_w = waypoints[closest_waypoints[1]]
-        # track_direction = math.atan2(n_point[1] - n_w[1], n_point[0] - n_w[0])
-        # track_direction = math.degrees(track_direction)
-        # track_direction_diff = abs(track_direction - car_direction)
-        # if track_direction_diff > 180:
-        #     track_direction_diff = 360 - track_direction_diff
-        # print('track_direction_diff normalized:', track_direction_diff / 180)
-
-        # # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(n_point[1] - p_w[1], n_point[0] - p_w[0])
+        # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(forcast_car[1] - p_w[1], forcast_car[0] - p_w[0])
         # track_curve = abs(math.degrees(track_curve))
         # if track_curve > 180:
         #     track_curve = 360 - track_curve
         # print('track_curve:', track_curve)
-
-        target_speed = MAX_SPEED * math.exp(-20 * (direction_diff / 180) ** 2) + MIN_SPEED
+        target_speed = ((MAX_SPEED - MIN_SPEED) * math.exp(-20 * (direction_diff / 180) ** 2) + MIN_SPEED) * diff_index / FORCAST
         print('target_speed:', target_speed)
         speed_diff = abs(target_speed - params['speed'])
         print('speed_diff:', speed_diff)
