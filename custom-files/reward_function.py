@@ -4,9 +4,33 @@ MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
-FORCAST = 15
+FORCAST = 10
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
+
+
+def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
+    forcast_index = next_waypoint
+    if start_forcast_index > next_waypoint:
+        waypoints_middle = [i for i in range(start_forcast_index, next_waypoint - 1, -1)]
+    else:
+        waypoints_middle = [i for i in range(start_forcast_index, -1, -1)] + [i for i in range(len(waypoints) - 1, next_waypoint - 1, -1)]
+    for i in range(len(waypoints_middle)):
+        out_of_track = False
+        for j in range(i + 1, len(waypoints_middle)):
+            d = dist(waypoints[waypoints_middle[i]], pos, waypoints[waypoints_middle[j]])
+            if d >= 0.5 * (track_width + VEHICLE_WIDTH):
+                out_of_track = True
+                break
+        if not out_of_track:
+            forcast_index = waypoints_middle[i]
+            break
+    print('============')
+    print('projected waypoint:', forcast_index)
+    diff_index = forcast_index - next_waypoint
+    print('diff_index:', diff_index)
+    print('============')
+    return forcast_index
 
 
 def dist(p1, p2, p3):
@@ -16,73 +40,30 @@ def dist(p1, p2, p3):
 class Reward:
     def __init__(self):
         self.score = 0
-        self.prev_steering_angle = None
+        # self.prev_steering_angle = None
 
     def reward_function(self, params):
-        reward = 1e-3
         waypoints = params['waypoints']
         closest_waypoints = params['closest_waypoints']
         track_width = params['track_width']
         potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
         car_pos = (params['x'], params['y'])
+        print('car forcast')
+        forcast_car_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
+        forcast_car = waypoints[forcast_car_index]
 
-        if potential_forcast_index > closest_waypoints[1]:
-            waypoints_middle = [i for i in range(potential_forcast_index, closest_waypoints[1] - 1, -1)]
-        else:
-            waypoints_middle = [i for i in range(potential_forcast_index, -1, -1)] + [i for i in range(len(waypoints) - 1, closest_waypoints[1] - 1, -1)]
-
-        for i in range(len(waypoints_middle)):
-            out_of_track = False
-            for j in range(i + 1, len(waypoints_middle)):
-                d = dist(waypoints[waypoints_middle[i]], car_pos, waypoints[waypoints_middle[j]])
-                if d >= 0.5 * (track_width + VEHICLE_WIDTH):
-                    out_of_track = True
-                    break
-            if not out_of_track:
-                potential_forcast_index = waypoints_middle[i]
-                break
-        n_point = waypoints[potential_forcast_index]
-        print('projected waypoint:', potential_forcast_index)
+        # print('track forcast')
+        # forcast_track_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, waypoints[closest_waypoints[0]])
+        # forcast_track = waypoints[forcast_track_index]
 
         # steering
-        if self.prev_steering_angle is not None:
-            prev_steering_angle = self.prev_steering_angle
-        else:
-            prev_steering_angle = params['steering_angle']
-        self.prev_steering_angle = params['steering_angle']
-        diff_steering = abs(prev_steering_angle - params['steering_angle'])
-        print('diff_steering in degrees:', diff_steering)
-
-        # direction
-        car_direction = math.atan2(n_point[1] - car_pos[1], n_point[0] - car_pos[0])
-        car_direction = math.degrees(car_direction)
-        heading = params['heading']
-        direction_diff = abs(car_direction - heading)
-        if direction_diff > 180:
-            direction_diff = 360 - direction_diff
-        print('direction_diff normalized:', direction_diff / 180)
-
-        # speed
-        # p_w = waypoints[closest_waypoints[0]]
-        n_w = waypoints[closest_waypoints[1]]
-        track_direction = math.atan2(n_point[1] - n_w[1], n_point[0] - n_w[0])
-        track_direction = math.degrees(track_direction)
-        track_direction_diff = abs(track_direction - car_direction)
-        # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(n_point[1] - p_w[1], n_point[0] - p_w[0])
-        # track_curve = abs(math.degrees(track_curve))
-        # if track_curve > 180:
-        #     track_curve = 360 - track_curve
-        # print('track_curve', track_curve)
-        # target_speed = MAX_SPEED * math.exp(-20 * (track_curve / 180) ** 2)
-        if track_direction_diff > 180:
-            track_direction_diff = 360 - track_direction_diff
-        print('track_direction_diff normalized:', track_direction_diff / 180)
-        target_speed = MAX_SPEED * math.exp(-20 * (track_direction_diff / 180) ** 2)
-        speed = params['speed']
-        speed_diff = abs(target_speed - speed)
-        print('speed_diff normalized: ', speed_diff / (MAX_SPEED - MIN_SPEED))
-
-        # steering
+        # if self.prev_steering_angle is not None:
+        #     prev_steering_angle = self.prev_steering_angle
+        # else:
+        #     prev_steering_angle = params['steering_angle']
+        # self.prev_steering_angle = params['steering_angle']
+        # diff_steering = abs(prev_steering_angle - params['steering_angle'])
+        # print('diff_steering in degrees:', diff_steering)
         # prev_steering_angle = self.prev_steering_angle if self.prev_steering_angle is not None else 0
         # steering_angle = params['steering_angle']
         # steering_diff = abs(steering_angle - prev_steering_angle)
@@ -92,7 +73,41 @@ class Reward:
         # reward_steering = 10 * (1 - (steering_diff / 30))
         # print('reward_steering:', reward_steering)
         # self.prev_steering_angle = steering_angle
-        reward = 5 * math.exp(-10 * (direction_diff / 180) ** 2 - 10 * speed_diff / (MAX_SPEED - MIN_SPEED) ** 2)
+
+        # direction
+        car_direction = math.atan2(forcast_car[1] - car_pos[1], forcast_car[0] - car_pos[0])
+        car_direction = math.degrees(car_direction)
+        heading = params['heading']
+        direction_diff = abs(car_direction - heading)
+        if direction_diff > 180:
+            direction_diff = 360 - direction_diff
+        print('direction_diff:', direction_diff)
+        print('============')
+
+        # speed
+        # p_w = waypoints[closest_waypoints[0]]
+        # n_w = waypoints[closest_waypoints[1]]
+        # track_direction = math.atan2(n_point[1] - n_w[1], n_point[0] - n_w[0])
+        # track_direction = math.degrees(track_direction)
+        # track_direction_diff = abs(track_direction - car_direction)
+        # if track_direction_diff > 180:
+        #     track_direction_diff = 360 - track_direction_diff
+        # print('track_direction_diff normalized:', track_direction_diff / 180)
+
+        # # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(n_point[1] - p_w[1], n_point[0] - p_w[0])
+        # track_curve = abs(math.degrees(track_curve))
+        # if track_curve > 180:
+        #     track_curve = 360 - track_curve
+        # print('track_curve:', track_curve)
+
+        target_speed = MAX_SPEED * math.exp(-20 * (direction_diff / 180) ** 2) + MIN_SPEED
+        print('target_speed:', target_speed)
+        speed_diff = abs(target_speed - params['speed'])
+        print('speed_diff:', speed_diff)
+        print('============')
+
+        x, y = (direction_diff / 180), speed_diff / (MAX_SPEED - MIN_SPEED)
+        reward = math.exp(20 * (-x ** 2 - y ** 2)) + 0.001
         self.score += reward
         return reward
 
@@ -120,6 +135,8 @@ def reward_function(params):
             print('bonus')
             time = steps / STEPS_PER_SECOND
             print('time:', time)
-            reward += 100 * math.exp(7 - time)
+            reward += 50 * math.exp(7 - time)
+        else:
+            reward -= reward_state.score / 2
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
