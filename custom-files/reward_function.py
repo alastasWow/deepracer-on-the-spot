@@ -26,7 +26,7 @@ def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
             forcast_index = waypoints_middle[i]
             break
     print('projected waypoint:', forcast_index)
-    diff_index = forcast_index - next_waypoint
+    diff_index = forcast_index - next_waypoint if forcast_index > next_waypoint else forcast_index + len(waypoints) - next_waypoint
     print('diff_index:', diff_index)
     return forcast_index, diff_index
 
@@ -93,6 +93,8 @@ class Reward:
         #     track_curve = 360 - track_curve
         # print('track_curve:', track_curve)
         target_speed = ((MAX_SPEED - MIN_SPEED) * math.exp(-20 * (direction_diff / 180) ** 2) + MIN_SPEED) * diff_index / FORCAST
+        print((MAX_SPEED - MIN_SPEED) * math.exp(-20 * (direction_diff / 180) ** 2) + MIN_SPEED)
+        print(diff_index / FORCAST)
         print('target_speed:', target_speed)
         speed_diff = abs(target_speed - params['speed'])
         print('speed_diff:', speed_diff)
