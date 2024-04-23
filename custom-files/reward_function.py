@@ -103,7 +103,7 @@ class Reward:
         print('============')
 
         x, y = (direction_diff / 180), speed_diff / (MAX_SPEED - MIN_SPEED)
-        reward = -(0.5 * x) - (y) + 1
+        reward = -(2 * x) - (2 * y) + 1
         return reward
 
 
