@@ -1,6 +1,6 @@
 import math
 
-MAX_SPEED = 3.5
+MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
@@ -106,8 +106,7 @@ class Reward:
         # x, y = (direction_diff / 180), speed_diff / (MAX_SPEED - MIN_SPEED)
         # reward = -(2 * x) - (2 * y) + 1
         # reward = - 5 * x ** 2 - 5 * y ** 2 + 1.001
-        reward = (params['speed'] / MAX_SPEED) * math.exp(-15 * (track_curve / 180) ** 2)
-        print(reward)
+        reward = (MAX_SPEED - MIN_SPEED) - ((MAX_SPEED - MIN_SPEED) / 90) * track_curve
         return reward
 
 
