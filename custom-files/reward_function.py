@@ -103,7 +103,8 @@ class Reward:
         print('============')
 
         x, y = (direction_diff / 180), speed_diff / (MAX_SPEED - MIN_SPEED)
-        reward = -(2 * x) - (2 * y) + 1
+        # reward = -(2 * x) - (2 * y) + 1
+        reward = - 5 * x ** 2 - 5 * y ** 2 + 1.001
         return reward
 
 
@@ -129,8 +130,8 @@ def reward_function(params):
         if is_complete_lap:
             time = steps / STEPS_PER_SECOND
             print('time:', time)
-            # bonus = 50 * math.exp(7 - time)
-            bonus = 50 / (time - 6)
+            bonus = 10 * math.exp(7 - time)
+            # bonus = 50 / (time - 6)
             print('bonus:', bonus)
             reward += bonus
     print('reward final result: ', reward)
