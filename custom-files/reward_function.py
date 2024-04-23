@@ -1,6 +1,6 @@
 import math
 
-MAX_SPEED = 4
+MAX_SPEED = 3.5
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
@@ -103,7 +103,7 @@ class Reward:
         print('============')
 
         x, y = (direction_diff / 180), speed_diff / (MAX_SPEED - MIN_SPEED)
-        reward = math.exp(-10 * x ** 2 - 10 * y ** 2) + 0.001
+        reward = -(0.5 * x) - (y) + 1
         return reward
 
 
