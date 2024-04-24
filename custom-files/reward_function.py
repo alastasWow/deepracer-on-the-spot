@@ -92,12 +92,17 @@ class Reward:
         if track_curve > 180:
             track_curve = 360 - track_curve
         print('track_curve:', track_curve)
-        if track_curve < 45:
-            return params['speed']
-        elif 45 <= track_curve < 60:
-            return params['speed'] * 0.5
+        if track_curve > 0:
+            return params['speed'] / track_curve
         else:
-            return 1e-3
+            return params['speed']
+        # print('track_curve:', track_curve)
+        # if track_curve < 45:
+        #     return params['speed']
+        # elif 45 <= track_curve < 60:
+        #     return params['speed'] * 0.5
+        # else:
+        #     return 1e-3
         # if direction_diff <= 90:
         # else:
         #     target_speed = -4
