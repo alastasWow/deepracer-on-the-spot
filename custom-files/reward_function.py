@@ -86,7 +86,7 @@ class Reward:
         # speed
         p_w = waypoints[closest_waypoints[0]]
         n_w = waypoints[closest_waypoints[1]]
-        curve_forcast = waypoints[(closest_waypoints[1] + 3) % len(waypoints)]
+        curve_forcast = waypoints[(closest_waypoints[1] + 6) % len(waypoints)]
         track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(curve_forcast[1] - p_w[1], curve_forcast[0] - p_w[0])
         track_curve = abs(math.degrees(track_curve))
         if track_curve > 180:
@@ -113,7 +113,8 @@ class Reward:
         # reward = -(2 * x) - (2 * y) + 1
         # reward = - 5 * x ** 2 - 5 * y ** 2 + 1.001
         # reward = (MAX_SPEED - MIN_SPEED) - ((MAX_SPEED - MIN_SPEED) / 90) * track_curve
-        reward = params['speed'] * math.exp(-5 * (track_curve / 90) ** 2)
+        # reward = params['speed'] * math.exp(-5 * (track_curve / 90) ** 2)
+        reward = params['speed'] if track_curve < 45 else 1 / params['speed']
         return reward
 
 
