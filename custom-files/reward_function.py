@@ -86,7 +86,7 @@ class Reward:
         # speed
         p_w = waypoints[closest_waypoints[0]]
         n_w = waypoints[closest_waypoints[1]]
-        curve_forcast = waypoints[(closest_waypoints[1] + 6) % len(waypoints)]
+        curve_forcast = waypoints[(closest_waypoints[1] + 3) % len(waypoints)]
         track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(curve_forcast[1] - p_w[1], curve_forcast[0] - p_w[0])
         track_curve = abs(math.degrees(track_curve))
         if track_curve > 180:
