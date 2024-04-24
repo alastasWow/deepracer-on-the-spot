@@ -38,10 +38,11 @@ def dist(p1, p2, p3):
 class Reward:
     def __init__(self):
         self.prev_steering_angle = None
+        self.jerome = 1
 
     def reward_function(self, params):
-        waypoints = params['waypoints']
-        closest_waypoints = params['closest_waypoints']
+        # waypoints = params['waypoints']
+        # closest_waypoints = params['closest_waypoints']
         # track_width = params['track_width']
         # potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
         # car_pos = (params['x'], params['y'])
@@ -84,14 +85,14 @@ class Reward:
         # print('============')
 
         # speed
-        p_w = waypoints[closest_waypoints[0]]
-        n_w = waypoints[closest_waypoints[1]]
-        curve_forcast = waypoints[(closest_waypoints[1] + 6) % len(waypoints)]
-        track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(curve_forcast[1] - p_w[1], curve_forcast[0] - p_w[0])
-        track_curve = abs(math.degrees(track_curve))
-        if track_curve > 180:
-            track_curve = 360 - track_curve
-        print('track_curve:', track_curve)
+        # p_w = waypoints[closest_waypoints[0]]
+        # n_w = waypoints[closest_waypoints[1]]
+        # curve_forcast = waypoints[(closest_waypoints[1] + 6) % len(waypoints)]
+        # track_curve = math.atan2(n_w[1] - p_w[1], n_w[0] - p_w[0]) - math.atan2(curve_forcast[1] - p_w[1], curve_forcast[0] - p_w[0])
+        # track_curve = abs(math.degrees(track_curve))
+        # if track_curve > 180:
+        #     track_curve = 360 - track_curve
+        # print('track_curve:', track_curve)
         # print('track_curve:', track_curve)
         # if track_curve < 45:
         #     return params['speed']
@@ -114,7 +115,14 @@ class Reward:
         # reward = - 5 * x ** 2 - 5 * y ** 2 + 1.001
         # reward = (MAX_SPEED - MIN_SPEED) - ((MAX_SPEED - MIN_SPEED) / 90) * track_curve
         # reward = params['speed'] * math.exp(-5 * (track_curve / 90) ** 2)
-        reward = params['speed'] if track_curve < 45 else 1 / params['speed']
+        # reward = 1e-3
+        all_wheels_on_track = params['all_wheels_on_track']
+        if not all_wheels_on_track:
+            reward = 1e-3
+            self.jerome += 1
+        else:
+            x, y = params['speed'], params['steps']
+            reward = (math.exp(x + 2) + ((200 - y) / 10)) / self.jerome
         return reward
 
 
@@ -123,26 +131,7 @@ reward_state = Reward()
 
 def reward_function(params):
     print('params =>', params)
-    all_wheels_on_track = params['all_wheels_on_track']
-    track_width = params['track_width']
-    distance_from_center = params['distance_from_center']
-    reward = 1e-3
-    if all_wheels_on_track and distance_from_center < 0.5 * (track_width + VEHICLE_WIDTH):
-        reward = reward_state.reward_function(params)
-    # is_complete_lap = int(params['progress']) == 100
-    # is_offtrack = params['is_offtrack']
-    # is_reversed = params['is_reversed']
-    # is_crashed = params['is_crashed']
-    # is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-    # steps = params['steps']
-    # if is_final_step:
-    #     print('final step')
-    #     if is_complete_lap:
-    #         time = steps / STEPS_PER_SECOND
-    #         print('time:', time)
-    #         bonus = 10 * math.exp(7 - time)
-    #         # bonus = 50 / (time - 6)
-    #         print('bonus:', bonus)
-    #         reward += bonus
+
+    reward = reward_state.reward_function(params)
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
