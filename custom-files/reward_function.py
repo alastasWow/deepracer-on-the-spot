@@ -92,10 +92,6 @@ class Reward:
         if track_curve > 180:
             track_curve = 360 - track_curve
         print('track_curve:', track_curve)
-        if track_curve > 0:
-            return params['speed'] / track_curve
-        else:
-            return params['speed']
         # print('track_curve:', track_curve)
         # if track_curve < 45:
         #     return params['speed']
@@ -117,7 +113,8 @@ class Reward:
         # reward = -(2 * x) - (2 * y) + 1
         # reward = - 5 * x ** 2 - 5 * y ** 2 + 1.001
         # reward = (MAX_SPEED - MIN_SPEED) - ((MAX_SPEED - MIN_SPEED) / 90) * track_curve
-        # return reward
+        reward = params['speed'] * math.exp(-5 * (track_curve / 90) ** 2)
+        return reward
 
 
 reward_state = Reward()
@@ -131,20 +128,20 @@ def reward_function(params):
     reward = 1e-3
     if all_wheels_on_track and distance_from_center < 0.5 * (track_width + VEHICLE_WIDTH):
         reward = reward_state.reward_function(params)
-    is_complete_lap = int(params['progress']) == 100
-    is_offtrack = params['is_offtrack']
-    is_reversed = params['is_reversed']
-    is_crashed = params['is_crashed']
-    is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-    steps = params['steps']
-    if is_final_step:
-        print('final step')
-        if is_complete_lap:
-            time = steps / STEPS_PER_SECOND
-            print('time:', time)
-            bonus = 10 * math.exp(7 - time)
-            # bonus = 50 / (time - 6)
-            print('bonus:', bonus)
-            reward += bonus
+    # is_complete_lap = int(params['progress']) == 100
+    # is_offtrack = params['is_offtrack']
+    # is_reversed = params['is_reversed']
+    # is_crashed = params['is_crashed']
+    # is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
+    # steps = params['steps']
+    # if is_final_step:
+    #     print('final step')
+    #     if is_complete_lap:
+    #         time = steps / STEPS_PER_SECOND
+    #         print('time:', time)
+    #         bonus = 10 * math.exp(7 - time)
+    #         # bonus = 50 / (time - 6)
+    #         print('bonus:', bonus)
+    #         reward += bonus
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
