@@ -38,7 +38,7 @@ def dist(p1, p2, p3):
 class Reward:
     def __init__(self):
         self.progress = 0
-        self.out = 1
+        self.out = 0
 
     def reward_function(self, params):
         waypoints = params['waypoints']
@@ -116,7 +116,7 @@ class Reward:
         # progress_diff = params['progress'] - self.progress
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
-        y = self.out or 1
+        y = self.out
         x = direction_diff / 180
         print('reward params', x, y)
         reward = params['speed'] * math.exp(-30 * x ** 2) - y
@@ -134,15 +134,13 @@ def reward_function(params):
     reward = 1e-3
     if all_wheels_on_track and distance_from_center < 0.5 * (track_width + VEHICLE_WIDTH):
         reward = reward_state.reward_function(params)
-    else:
-        reward_state.out += 1
     # is_complete_lap = int(params['progress']) == 100
-    # is_offtrack = params['is_offtrack']
-    # is_reversed = params['is_reversed']
-    # is_crashed = params['is_crashed']
+    is_offtrack = params['is_offtrack']
+    is_reversed = params['is_reversed']
+    is_crashed = params['is_crashed']
     # is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-    # steps = params['steps']
-    # if is_final_step:
+    if is_offtrack or is_reversed or is_crashed:
+        reward_state.out += 1
     #     print('final step')
     #     if is_complete_lap:
     #         time = steps / STEPS_PER_SECOND
