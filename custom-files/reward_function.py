@@ -4,7 +4,7 @@ MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
-FORCAST = 15
+FORCAST = 6
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 
@@ -37,7 +37,8 @@ def dist(p1, p2, p3):
 
 class Reward:
     def __init__(self):
-        self.prev_steering_angle = None
+        self.progress = 0
+        self.out = 0
 
     def reward_function(self, params):
         waypoints = params['waypoints']
@@ -48,9 +49,9 @@ class Reward:
         print('============')
         print('car forcast')
         forcast_car_index, diff_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
-        forcast_car = waypoints[forcast_car_index]
-        print('============')
+        forcast_car = waypoints[potential_forcast_index]
 
+        # print('============')
         # print('track forcast')
         # forcast_track_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, waypoints[closest_waypoints[0]])
         # forcast_track = waypoints[forcast_track_index]
@@ -108,12 +109,16 @@ class Reward:
         # speed_diff = abs(target_speed - params['speed'])
         # print('speed_diff:', speed_diff)
         # print('============')
-
-        x = (direction_diff / 180)
         # reward = -(2 * x) - (2 * y) + 1
         # reward = - 5 * x ** 2 - 5 * y ** 2 + 1.001
         # reward = (MAX_SPEED - MIN_SPEED) - ((MAX_SPEED - MIN_SPEED) / 90) * track_curve
-        reward = 2 * params['speed'] * math.exp(-20 * x ** 2)
+
+        # progress_diff = params['progress'] - self.progress
+        # self.progress = params['progress']
+        # reward = (progress_diff / self.steps)
+        y = self.out or 1
+        x = (direction_diff / 180)
+        reward = 2 * (params['speed'] / y) * math.exp(-20 * x ** 2)
         return reward
 
 
@@ -128,6 +133,8 @@ def reward_function(params):
     reward = 1e-3
     if all_wheels_on_track and distance_from_center < 0.5 * (track_width + VEHICLE_WIDTH):
         reward = reward_state.reward_function(params)
+    else:
+        reward_state.out += 1
     # is_complete_lap = int(params['progress']) == 100
     # is_offtrack = params['is_offtrack']
     # is_reversed = params['is_reversed']
