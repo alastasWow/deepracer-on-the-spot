@@ -38,7 +38,7 @@ def dist(p1, p2, p3):
 class Reward:
     def __init__(self):
         self.progress = 0
-        self.out = 0
+        self.out = 1
 
     def reward_function(self, params):
         waypoints = params['waypoints']
@@ -117,8 +117,9 @@ class Reward:
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
         y = self.out or 1
-        x = (direction_diff / 180)
-        reward = 2 * (params['speed'] / y) * math.exp(-20 * x ** 2)
+        x = direction_diff / 180
+        print('reward params', x, y)
+        reward = params['speed'] * math.exp(-30 * x ** 2) - y
         return reward
 
 
