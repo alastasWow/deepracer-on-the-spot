@@ -53,7 +53,7 @@ class Reward:
             self.nb_sortie += 1
         #COucou
         nb_progress = params['progress'] - self.last_progress
-        totalProgress += nb_progress
+        self.totalProgress += nb_progress
         self.last_progress = params['progress']
         currentStep = params['steps']
         top = currentStep + (PUNITION_SORTIE_FACTOR * 45 * self.nb_sortie)
@@ -61,7 +61,7 @@ class Reward:
             reward = (100 - (top / 2)) * nb_progress
         else:
             reward = 1e-3
-        totalReward += reward
+        self.totalReward += reward
         print(f'### jerome - uuid {self.uuid}, currentStep {currentStep}, top {top}, lastProgress {self.last_progress}, totalProgress {self.totalProgress}, nbSortie {self.nb_sortie}, all_wheels_on_track {all_wheels_on_track}, reward {reward} and totalReward {self.totalReward}')
         return reward
 
