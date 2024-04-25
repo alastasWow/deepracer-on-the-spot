@@ -9,7 +9,7 @@ FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 TOP_CONST = 200
-PUNITION_SORTIE_FACTOR = 2
+PUNITION_SORTIE_FACTOR = 1.1
 
 
 def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
@@ -45,9 +45,10 @@ class Reward:
         self.uuid = uuid.uuid4()
         self.totalProgress = 0
         self.totalReward = 0
+        self.jeromeStep = 0
 
     def reward_function(self, params):
-
+        self.jeromeStep += 1
         all_wheels_on_track = params['all_wheels_on_track']
         if not all_wheels_on_track:
             self.nb_sortie += 1
@@ -59,13 +60,16 @@ class Reward:
             self.totalProgress += nb_progress
         self.last_progress = params['progress']
         currentStep = params['steps']
-        top = currentStep + (PUNITION_SORTIE_FACTOR * 45 * self.nb_sortie)
+        top = self.jeromeStep + (PUNITION_SORTIE_FACTOR * 45 * self.nb_sortie)
         if top < TOP_CONST:
-            reward = (100 - (top / 2)) * nb_progress
+            if not all_wheels_on_track:
+                reward = (100 - (top / 2)) * nb_progress
+            else :
+                reward = 1e-3
         else:
             reward = 1e-3
         self.totalReward += reward
-        print(f'### jerome - uuid {self.uuid}, currentStep {currentStep}, top {top}, closest_waypoints {closest_waypoints}, speed {speed}, nb_progress {nb_progress}, lastProgress {self.last_progress}, totalProgress {self.totalProgress}, nbSortie {self.nb_sortie}, all_wheels_on_track {all_wheels_on_track}, reward {reward} and totalReward {self.totalReward}')
+        print(f'### jerome - uuid {self.uuid}, jeromeStep {self.jeromeStep}, currentStep {currentStep}, top {top}, closest_waypoints {closest_waypoints}, speed {speed}, nb_progress {nb_progress}, lastProgress {self.last_progress}, totalProgress {self.totalProgress}, nbSortie {self.nb_sortie}, all_wheels_on_track {all_wheels_on_track}, reward {reward} and totalReward {self.totalReward}')
         return reward
 
 reward_state = Reward()
