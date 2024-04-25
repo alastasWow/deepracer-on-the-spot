@@ -36,20 +36,16 @@ def dist(p1, p2, p3):
 
 
 class Reward:
-    def __init__(self):
-        self.progress = 0
-        self.out = 0
-
     def reward_function(self, params):
-        waypoints = params['waypoints']
-        closest_waypoints = params['closest_waypoints']
-        track_width = params['track_width']
-        potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
-        car_pos = (params['x'], params['y'])
-        print('============')
-        print('car forcast')
-        forcast_car_index, diff_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
-        forcast_car = waypoints[potential_forcast_index]
+        # waypoints = params['waypoints']
+        # closest_waypoints = params['closest_waypoints']
+        # track_width = params['track_width']
+        # potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
+        # car_pos = (params['x'], params['y'])
+        # print('============')
+        # print('car forcast')
+        # forcast_car_index, diff_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
+        # forcast_car = waypoints[potential_forcast_index]
 
         # print('============')
         # print('track forcast')
@@ -75,14 +71,14 @@ class Reward:
         # self.prev_steering_angle = steering_angle
 
         # direction
-        car_direction = math.atan2(forcast_car[1] - car_pos[1], forcast_car[0] - car_pos[0])
-        car_direction = math.degrees(car_direction)
-        heading = params['heading']
-        direction_diff = abs(car_direction - heading)
-        if direction_diff > 180:
-            direction_diff = 360 - direction_diff
-        print('direction_diff:', direction_diff)
-        print('============')
+        # car_direction = math.atan2(forcast_car[1] - car_pos[1], forcast_car[0] - car_pos[0])
+        # car_direction = math.degrees(car_direction)
+        # heading = params['heading']
+        # direction_diff = abs(car_direction - heading)
+        # if direction_diff > 180:
+        #     direction_diff = 360 - direction_diff
+        # print('direction_diff:', direction_diff)
+        # print('============')
 
         # speed
         # p_w = waypoints[closest_waypoints[0]]
@@ -116,10 +112,9 @@ class Reward:
         # progress_diff = params['progress'] - self.progress
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
-        self.out = self.out if closest_waypoints[0] > 2 else 0
-        x = direction_diff / 180
-        print('reward params', x, self.out)
-        reward = params['speed'] * math.exp(-30 * x ** 2) - self.out
+        x = params['distance_from_center'] / (0.5 * params['track_width'])
+        print('reward param', x)
+        reward = params['speed'] * (1 - x ** 4)
         return reward
 
 
