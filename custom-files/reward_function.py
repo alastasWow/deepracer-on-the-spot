@@ -52,8 +52,11 @@ class Reward:
         if not all_wheels_on_track:
             self.nb_sortie += 1
         #COucou
+        speed = params['speed']
+        closest_waypoints = params['closest_waypoints']
         nb_progress = params['progress'] - self.last_progress
-        self.totalProgress += nb_progress
+        if (nb_progress>0):
+            self.totalProgress += nb_progress
         self.last_progress = params['progress']
         currentStep = params['steps']
         top = currentStep + (PUNITION_SORTIE_FACTOR * 45 * self.nb_sortie)
@@ -62,7 +65,7 @@ class Reward:
         else:
             reward = 1e-3
         self.totalReward += reward
-        print(f'### jerome - uuid {self.uuid}, currentStep {currentStep}, top {top}, lastProgress {self.last_progress}, totalProgress {self.totalProgress}, nbSortie {self.nb_sortie}, all_wheels_on_track {all_wheels_on_track}, reward {reward} and totalReward {self.totalReward}')
+        print(f'### jerome - uuid {self.uuid}, currentStep {currentStep}, top {top}, closest_waypoints {closest_waypoints}, speed {speed}, nb_progress {nb_progress}, lastProgress {self.last_progress}, totalProgress {self.totalProgress}, nbSortie {self.nb_sortie}, all_wheels_on_track {all_wheels_on_track}, reward {reward} and totalReward {self.totalReward}')
         return reward
 
 reward_state = Reward()
