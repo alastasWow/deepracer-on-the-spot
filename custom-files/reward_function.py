@@ -116,10 +116,10 @@ class Reward:
         # progress_diff = params['progress'] - self.progress
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
-        y = self.out
+        self.out = self.out if closest_waypoints[0] > 2 else 0
         x = direction_diff / 180
-        print('reward params', x, y)
-        reward = params['speed'] * math.exp(-30 * x ** 2) - y
+        print('reward params', x, self.out)
+        reward = params['speed'] * math.exp(-30 * x ** 2) - self.out
         return reward
 
 
