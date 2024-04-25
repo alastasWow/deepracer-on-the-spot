@@ -46,7 +46,7 @@ class Reward:
         all_wheels_on_track = params['all_wheels_on_track']
         if not all_wheels_on_track:
             self.nb_sortie += 1
-
+        #COucou
         nb_progress = params['progress'] - self.last_progress
         self.last_progress = params['progress']
         top = params['steps'] + 45 * self.nb_sortie
