@@ -113,9 +113,7 @@ class Reward:
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
         x = params['distance_from_center'] / (0.5 * params['track_width'])
-        print('reward param', x)
-        reward = params['speed'] * (1 - x ** 4)
-        return reward
+        return params['speed'] * (1 - x ** 4)
 
 
 reward_state = Reward()
@@ -134,8 +132,6 @@ def reward_function(params):
     is_reversed = params['is_reversed']
     is_crashed = params['is_crashed']
     # is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-    if is_offtrack or is_reversed or is_crashed:
-        reward_state.out += 1
     #     print('final step')
     #     if is_complete_lap:
     #         time = steps / STEPS_PER_SECOND
