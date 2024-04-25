@@ -1,4 +1,5 @@
 import math
+import uuid
 
 MAX_SPEED = 4
 MIN_SPEED = 1
@@ -8,6 +9,7 @@ FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 TOP_CONST = 200
+PUNITION_SORTIE_FACTOR = 2
 
 
 def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
@@ -40,6 +42,9 @@ class Reward:
     def __init__(self):
         self.last_progress = 0
         self.nb_sortie = 0
+        self.uuid = uuid.uuid4()
+        self.totalProgress = 0
+        self.totalReward = 0
 
     def reward_function(self, params):
 
@@ -48,13 +53,17 @@ class Reward:
             self.nb_sortie += 1
         #COucou
         nb_progress = params['progress'] - self.last_progress
+        totalProgress += nb_progress
         self.last_progress = params['progress']
-        top = params['steps'] + 45 * self.nb_sortie
+        currentStep = params['steps']
+        top = currentStep + (PUNITION_SORTIE_FACTOR * 45 * self.nb_sortie)
         if top < TOP_CONST:
-            return (100 - (top / 2)) * nb_progress
+            reward = (100 - (top / 2)) * nb_progress
         else:
-            return 1e-3
-
+            reward = 1e-3
+        totalReward += reward
+        print(f'### jerome - uuid {self.uuid}, currentStep {currentStep}, top {top}, lastProgress {self.last_progress}, totalProgress {self.totalProgress}, nbSortie {self.nb_sortie}, all_wheels_on_track {all_wheels_on_track}, reward {reward} and totalReward {self.totalReward}')
+        return reward
 
 reward_state = Reward()
 
