@@ -146,9 +146,9 @@ class Reward:
         is_crashed = params['is_crashed']
         is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
         if is_final_step:
-            if is_complete_lap:
-                reward += 0.1 * self.total_reward
-                print(f'completed lap with original total reward {self.total_reward} and new reward {reward}')
+            # if is_complete_lap:
+            #     reward += 0.1 * self.total_reward
+            #     print(f'completed lap with original total reward {self.total_reward} and new reward {reward}')
             self.reset()
         return float(min(1e3, max(reward, 1e-3)))
 
