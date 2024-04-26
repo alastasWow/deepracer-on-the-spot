@@ -36,9 +36,14 @@ def dist(p1, p2, p3):
 
 
 class Reward:
+
+    def __init__(self):
+        self.nb_out = 0
+        self.is_out = False
+
     def reward_function(self, params):
         # waypoints = params['waypoints']
-        # closest_waypoints = params['closest_waypoints']
+        closest_waypoints = params['closest_waypoints']
         # track_width = params['track_width']
         # potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
         # car_pos = (params['x'], params['y'])
@@ -112,8 +117,38 @@ class Reward:
         # progress_diff = params['progress'] - self.progress
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
-        x = params['distance_from_center'] / (0.5 * params['track_width'])
-        return params['speed'] * (1 - x ** 4)
+
+        all_wheels_on_track = params['all_wheels_on_track']
+        track_width = params['track_width']
+        distance_from_center = params['distance_from_center']
+        MAX_DIST = 0.5 * (track_width + VEHICLE_WIDTH)
+        if all_wheels_on_track and distance_from_center < MAX_DIST:
+            self.is_out = False
+            steps = params['steps'] + 45 * self.nb_out
+            x, y = params['progress'] / steps, params['speed']
+            reward = x * y
+            print({
+                'steps': steps,
+                'progress': params['progress'],
+                'progress / steps': x,
+                'speed': y,
+                'how many times out': self.nb_out,
+            })
+            is_complete_lap = int(params['progress']) == 100
+            is_offtrack = params['is_offtrack']
+            is_reversed = params['is_reversed']
+            is_crashed = params['is_crashed']
+            is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
+            if is_final_step:
+                self.nb_out = 0
+                if is_complete_lap:
+                    reward += 10
+            return reward
+        else:
+            if not self.is_out:
+                self.nb_out += 1
+                self.is_out = True
+            return 1e-3
 
 
 reward_state = Reward()
@@ -121,17 +156,8 @@ reward_state = Reward()
 
 def reward_function(params):
     print('params =>', params)
-    all_wheels_on_track = params['all_wheels_on_track']
-    track_width = params['track_width']
-    distance_from_center = params['distance_from_center']
-    reward = 1e-3
-    if all_wheels_on_track and distance_from_center < 0.5 * (track_width + VEHICLE_WIDTH):
-        reward = reward_state.reward_function(params)
-    # is_complete_lap = int(params['progress']) == 100
-    is_offtrack = params['is_offtrack']
-    is_reversed = params['is_reversed']
-    is_crashed = params['is_crashed']
-    # is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
+    reward = reward_state.reward_function(params)
+
     #     print('final step')
     #     if is_complete_lap:
     #         time = steps / STEPS_PER_SECOND
