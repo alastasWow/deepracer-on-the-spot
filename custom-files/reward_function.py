@@ -117,7 +117,7 @@ class Reward:
         # progress_diff = params['progress'] - self.progress
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
-
+        reward = 1e-3
         all_wheels_on_track = params['all_wheels_on_track']
         track_width = params['track_width']
         distance_from_center = params['distance_from_center']
@@ -134,21 +134,20 @@ class Reward:
                 'speed': y,
                 'how many times out': self.nb_out,
             })
-            is_complete_lap = int(params['progress']) == 100
-            is_offtrack = params['is_offtrack']
-            is_reversed = params['is_reversed']
-            is_crashed = params['is_crashed']
-            is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-            if is_final_step:
-                self.nb_out = 0
-                if is_complete_lap:
-                    reward += 10
-            return reward
         else:
             if not self.is_out:
-                self.nb_out += 1
                 self.is_out = True
-            return 1e-3
+                self.nb_out += 1
+        is_complete_lap = int(params['progress']) == 100
+        is_offtrack = params['is_offtrack']
+        is_reversed = params['is_reversed']
+        is_crashed = params['is_crashed']
+        is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
+        if is_final_step:
+            self.nb_out = 0
+            if is_complete_lap:
+                reward += 10
+        return reward
 
 
 reward_state = Reward()
