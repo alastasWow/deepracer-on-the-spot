@@ -71,7 +71,7 @@ class RewardV3:
             self.reInit()
         reward = self.regularStep(params)
         self.totalReward += reward
-        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress} lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress} lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
         return reward
 
     def regularStep(self,params):
