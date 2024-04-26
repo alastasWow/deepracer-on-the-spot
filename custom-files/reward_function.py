@@ -138,7 +138,7 @@ class RewardV3:
 
     def endLap(self,params):
         newClosestWayPoint = params['closest_waypoints'][0]
-        if ((newClosestWayPoint+10)<(self.lastClosestWayPoint):
+        if ((newClosestWayPoint+10)<self.lastClosestWayPoint):
             self.lastClosestWayPoint=newClosestWayPoint
             return True
         else:
