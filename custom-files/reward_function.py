@@ -130,27 +130,24 @@ class Reward:
         distance_from_center = params['distance_from_center']
         progress = params['progress']
         steps = params['steps']
-        speed = params['speed']
         MAX_DIST = 0.5 * (track_width + VEHICLE_WIDTH)
         if all_wheels_on_track and distance_from_center < MAX_DIST:
-            x, y = progress - self.prev_progress, speed / MAX_SPEED
-            reward = x + y
+            reward = progress - self.prev_progress
             print({
                 'progress': progress,
-                'diff_progress': x,
-                'speed_norm': y,
-                'steps': params['steps'],
+                'steps': steps,
+                'reward': reward,
             })
         self.prev_progress = progress
         self.total_reward += reward
-        is_complete_lap = int(params['progress']) == 100
+        is_complete_lap = int(progress) == 100
         is_offtrack = params['is_offtrack']
         is_reversed = params['is_reversed']
         is_crashed = params['is_crashed']
         is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
         if is_final_step:
             if is_complete_lap:
-                reward += self.total_reward * math.exp(6 - (steps / STEPS_PER_SECOND))
+                reward += 0.1 * self.total_reward
                 print(f'completed lap with original total reward {self.total_reward} and new reward {reward}')
             self.reset()
         return float(min(1e3, max(reward, 1e-3)))
