@@ -36,13 +36,14 @@ def dist(p1, p2, p3):
 
 
 class Reward:
+    nb_out = 0
+    is_out = False
+    prev_progress = 0
+    prev_time = 0
+    total_reward = 0
 
     def __init__(self):
-        self.nb_out = 0
-        self.is_out = False
-        self.prev_progress = 0
-        self.prev_time = 0
-        self.total_reward = 0
+        self.reset()
 
     def reset(self):
         self.nb_out = 0
@@ -154,6 +155,7 @@ class Reward:
                 self.nb_out += 1
         self.prev_time, self.prev_progress = time, progress
         self.total_reward += reward
+        print(self.total_reward)
         is_complete_lap = int(params['progress']) == 100
         is_offtrack = params['is_offtrack']
         is_reversed = params['is_reversed']
@@ -166,7 +168,10 @@ class Reward:
                 self.reset()
                 return float(min(1e3, max(reward, 1e-3)))
             else:
-                reward = progress / (time + (3 * self.nb_out)) - self.total_reward
+                c = -0.25 * self.nb_out
+                if abs(c) > 1:
+                    return 1e-3
+                reward = c * self.total_reward
                 print(f'failed lap with original total reward {self.total_reward} and new reward {reward}')
                 self.reset()
                 return float(reward)
