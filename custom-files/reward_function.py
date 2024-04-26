@@ -83,8 +83,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            self.manageRewardForProgression(params,currentProgress)
-            return ((100 - (self.stepCount / 2)) * currentProgress)+1
+            return self.manageRewardForProgression(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -93,7 +92,7 @@ class RewardV3:
     def manageRewardForProgression(self,params,currentProgress):
         top=self.stepCount
         if top < TOP_CONST:
-            return 5+((100 - (self.stepCount / 2)) * currentProgress)
+            return 5+((100 - (top / 2)) * currentProgress)
         else:
             return 1+currentProgress
 
