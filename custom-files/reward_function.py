@@ -9,6 +9,8 @@ FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 TOP_CONST = 199
+BONUS_PROGRESSION = 5
+BONUS_NOT_OUT_BUT_NO_PROGRESS = 1
 PUNITION_SORTIE_FACTOR = 1.1
 
 
@@ -92,9 +94,9 @@ class RewardV3:
     def manageRewardForProgression(self,params,currentProgress):
         top=self.stepCount
         if top < TOP_CONST:
-            return 5+((100 - (top / 2)) * currentProgress)
+            return BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
         else:
-            return 1+currentProgress
+            return BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
 
     def manageProgression(self,params,wasOut):
         progress = params['progress']
@@ -107,7 +109,7 @@ class RewardV3:
         else:
             #No progress
             if (not wasOut):
-                #No progress strange
+                #No progress strange : we keep previous totalProgress and lastProgress
                 return 0
             else:
                 #No progress due to out
@@ -131,13 +133,16 @@ class RewardV3:
                 self.outCount += 1
                 return True
         else:
+            self.outLastTime = False
             return False
 
     def endLap(self,params):
         newClosestWayPoint = params['closest_waypoints'][0]
-        if (newClosestWayPoint<(self.lastClosestWayPoint+10)):
+        if ((newClosestWayPoint10)<(self.lastClosestWayPoint):
+            self.lastClosestWayPoint=newClosestWayPoint10
             return True
         else:
+            self.lastClosestWayPoint=newClosestWayPoint10
             return False
 
 class Reward:
