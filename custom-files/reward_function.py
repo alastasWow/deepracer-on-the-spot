@@ -36,23 +36,18 @@ def dist(p1, p2, p3):
 
 
 class Reward:
-    nb_out = 0
-    is_out = False
     prev_progress = 0
-    prev_time = 0
     total_reward = 0
 
     def __init__(self):
         self.reset()
 
     def reset(self):
-        self.nb_out = 0
-        self.is_out = False
         self.prev_progress = 0
-        self.prev_time = 0
         self.total_reward = 0
 
     def reward_function(self, params):
+        """
         # waypoints = params['waypoints']
         # closest_waypoints = params['closest_waypoints']
         # track_width = params['track_width']
@@ -128,34 +123,26 @@ class Reward:
         # progress_diff = params['progress'] - self.progress
         # self.progress = params['progress']
         # reward = (progress_diff / self.steps)
+        """
         reward = 1e-3
         all_wheels_on_track = params['all_wheels_on_track']
         track_width = params['track_width']
         distance_from_center = params['distance_from_center']
         progress = params['progress']
-        time = params['steps'] / STEPS_PER_SECOND
+        steps = params['steps']
+        speed = params['speed']
         MAX_DIST = 0.5 * (track_width + VEHICLE_WIDTH)
         if all_wheels_on_track and distance_from_center < MAX_DIST:
-            if not self.is_out:
-                self.nb_out = 0
-            self.is_out = False
-            diff_time, diff_progress = time - self.prev_time, progress - self.prev_progress
-            reward = diff_progress / (diff_time + (3 * self.nb_out))
+            x, y = progress - self.prev_progress, speed / MAX_SPEED
+            reward = x + y
             print({
                 'progress': progress,
+                'diff_progress': x,
+                'speed_norm': y,
                 'steps': params['steps'],
-                'time': time,
-                'diff_progress': diff_progress,
-                'diff_time': diff_time,
-                'how many times out': self.nb_out,
             })
-        else:
-            if not self.is_out:
-                self.is_out = True
-                self.nb_out += 1
-        self.prev_time, self.prev_progress = time, progress
+        self.prev_progress = progress
         self.total_reward += reward
-        print(self.total_reward)
         is_complete_lap = int(params['progress']) == 100
         is_offtrack = params['is_offtrack']
         is_reversed = params['is_reversed']
@@ -163,20 +150,10 @@ class Reward:
         is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
         if is_final_step:
             if is_complete_lap:
-                reward += 0.2 * self.total_reward
+                reward += self.total_reward * math.exp(6 - (steps / STEPS_PER_SECOND))
                 print(f'completed lap with original total reward {self.total_reward} and new reward {reward}')
-                self.reset()
-                return float(min(1e3, max(reward, 1e-3)))
-            else:
-                c = -0.25 * self.nb_out
-                if abs(c) > 1:
-                    return 1e-3
-                reward = c * self.total_reward
-                print(f'failed lap with original total reward {self.total_reward} and new reward {reward}')
-                self.reset()
-                return float(reward)
-        else:
-            return float(min(1e3, max(reward, 1e-3)))
+            self.reset()
+        return float(min(1e3, max(reward, 1e-3)))
 
 
 reward_state = Reward()
@@ -185,14 +162,5 @@ reward_state = Reward()
 def reward_function(params):
     print('params =>', params)
     reward = reward_state.reward_function(params)
-
-    #     print('final step')
-    #     if is_complete_lap:
-    #         time = steps / STEPS_PER_SECOND
-    #         print('time:', time)
-    #         bonus = 10 * math.exp(7 - time)
-    #         # bonus = 50 / (time - 6)
-    #         print('bonus:', bonus)
-    #         reward += bonus
     print('reward final result: ', reward)
     return reward
