@@ -92,7 +92,8 @@ class RewardV3:
             return 1e-3
 
     def manageRewardForProgression(self,params,currentProgress):
-        top=self.stepCount
+        top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+        #top=self.stepCount
         if top < TOP_CONST:
             return BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
         else:
