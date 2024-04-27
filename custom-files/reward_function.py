@@ -68,11 +68,13 @@ class RewardV3:
         closest_waypoints = params['closest_waypoints']
         all_wheels_on_track = params['all_wheels_on_track']
         distance_from_center = params['distance_from_center']
-        if (self.endLap(params)):
-            self.reInit()
+        newClosestWayPoint = params['closest_waypoints'][0]
+        self.lastClosestWayPoint = newClosestWayPoint
         reward = self.regularStep(params)
         self.totalReward += reward
-        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress} lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        if (self.endLap(params)):
+            self.reInit()
         return reward
 
     def regularStep(self,params):
@@ -121,6 +123,7 @@ class RewardV3:
             #No progress
             if (not wasOut):
                 #No progress strange : we keep previous totalProgress and lastProgress
+                print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
                 return 0
             else:
                 #No progress due to out
@@ -148,6 +151,19 @@ class RewardV3:
             return False
 
     def endLap(self,params):
+        progress = params['progress']
+        is_offtrack = params['is_offtrack']
+        if (is_offtrack):
+            print(f'### marcelOffTrack - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            return True
+        if (progress==100):
+            print(f'### marcel100Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            return True
+        if (progress>99.5):
+            print(f'### marcel99Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+        return False
+
+    def endLapV4(self,params):
         newClosestWayPoint = params['closest_waypoints'][0]
         if ((newClosestWayPoint+30)<self.lastClosestWayPoint):
             self.lastClosestWayPoint=newClosestWayPoint
