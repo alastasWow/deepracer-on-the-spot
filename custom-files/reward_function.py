@@ -52,6 +52,7 @@ class RewardV3:
         #Progress
         self.lastCurrentProgress = 0
         self.lastProgress = 0
+        self.maxLastProgress = 0
         self.totalProgress = 0
         #Out
         self.outCount = 0
@@ -72,7 +73,7 @@ class RewardV3:
         self.lastClosestWayPoint = newClosestWayPoint
         reward = self.regularStep(params)
         self.totalReward += reward
-        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
         if (self.endLap(params)):
             self.reInit()
         return reward
@@ -95,26 +96,49 @@ class RewardV3:
             return 1e-3
 
     def manageRewardForProgression(self,params,currentProgress):
-        distance_from_center = params['distance_from_center']
-        if (distance_from_center>0.4):
-            #100% ok 12% échec à 0.8
+        if (currentProgress>0):
+            distance_from_center = params['distance_from_center']
+            if (distance_from_center>0.4):
+                #100% ok 12% échec à 0.8
+                return 1e-2
+            if (distance_from_center<0.2807):
+                #100% ok 0% échec
+                #bonusCenter = 22
+                bonusCenter = 35
+            else:
+                #Here we are between 0.2807 and 0.8
+                #bonusCenter = math.exp(6*(0.8-distance_from_center))-0.99
+                #from 34.84 to 0.1
+                bonusCenter = math.exp(30*(0.4-distance_from_center))-0.9
+            top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+            if top < TOP_CONST:
+               return bonusCenter + BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
+            else:
+               return bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
+        else:
+            #No progress
             return 1e-3
-        if (distance_from_center<0.2807):
-            #100% ok 0% échec
-            #bonusCenter = 22
-            bonusCenter = 35
-        else:
-            #Here we are between 0.2807 and 0.8
-            #bonusCenter = math.exp(6*(0.8-distance_from_center))-0.99
-            #from 34.84 to 0.01
-            bonusCenter = math.exp(30*(0.4-distance_from_center))-0.99
-        top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
-        if top < TOP_CONST:
-           return bonusCenter + BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
-        else:
-           return bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
 
     def manageProgression(self,params,wasOut):
+        progress = params['progress']
+        currentProgress = progress - self.maxLastProgress
+        self.totalProgress = progress
+        self.lastProgress = progress
+        if (currentProgress>0):
+            #We made a progress
+            self.maxLastProgress = progress
+            return currentProgress
+        else:
+            #No progresse do not change maxLastProgress
+            if (not wasOut):
+                #No progress strange : we keep previous totalProgress and lastProgress
+                print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+                return 0
+            else:
+                #No progress due to out
+                return 0
+
+    def manageProgressionOld(self,params,wasOut):
         progress = params['progress']
         if (progress>self.lastProgress):
             #We made a progress
@@ -126,7 +150,7 @@ class RewardV3:
             #No progress
             if (not wasOut):
                 #No progress strange : we keep previous totalProgress and lastProgress
-                print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+                print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
                 return 0
             else:
                 #No progress due to out
@@ -157,13 +181,13 @@ class RewardV3:
         progress = params['progress']
         is_offtrack = params['is_offtrack']
         if (is_offtrack):
-            print(f'### marcelOffTrack - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            print(f'### marcelOffTrack - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
             return True
         if (progress==100):
-            print(f'### marcel100Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            print(f'### marcel100Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
             return True
         if (progress>99.5):
-            print(f'### marcel99Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            print(f'### marcel99Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
         return False
 
     def endLapV4(self,params):
