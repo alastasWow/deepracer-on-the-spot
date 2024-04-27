@@ -67,11 +67,12 @@ class RewardV3:
         speed = params['speed']
         closest_waypoints = params['closest_waypoints']
         all_wheels_on_track = params['all_wheels_on_track']
+        distance_from_center = params['distance_from_center']
         if (self.endLap(params)):
             self.reInit()
         reward = self.regularStep(params)
         self.totalReward += reward
-        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress} lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress} lastProgress {self.lastProgress}, totalProgress {self.totalProgress}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
         return reward
 
     def regularStep(self,params):
@@ -92,12 +93,21 @@ class RewardV3:
             return 1e-3
 
     def manageRewardForProgression(self,params,currentProgress):
-        top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
-        #top=self.stepCount
-        if top < TOP_CONST:
-            return BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
+        distance_from_center = params['distance_from_center']
+        if (distance_from_center>0.8):
+            #100% ok 12% échec
+            return 1e-3
+        if (distance_from_center<0.2807):
+            #100% ok 0% échec
+            bonusCenter = 22
         else:
-            return BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
+            #Here we are between 0.2807 and 0.8
+            bonusCenter = math.exp(6*(0.8-distance_from_center))-0.99
+        top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+        if top < TOP_CONST:
+           return bonusCenter + BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
+        else:
+           return bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
 
     def manageProgression(self,params,wasOut):
         progress = params['progress']
@@ -139,7 +149,7 @@ class RewardV3:
 
     def endLap(self,params):
         newClosestWayPoint = params['closest_waypoints'][0]
-        if ((newClosestWayPoint+10)<self.lastClosestWayPoint):
+        if ((newClosestWayPoint+30)<self.lastClosestWayPoint):
             self.lastClosestWayPoint=newClosestWayPoint
             return True
         else:
