@@ -8,7 +8,7 @@ MIN_STEERING = -30
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
-TOP_CONST = 199
+TOP_CONST = 140
 BONUS_PROGRESSION = 5
 BONUS_NOT_OUT_BUT_NO_PROGRESS = 1
 PUNITION_SORTIE_FACTOR = 1.1
@@ -115,9 +115,11 @@ class RewardV3:
                 bonusCenter = math.exp(11*(0.6-distance_from_center))-0.9
             top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
             if top < TOP_CONST:
-               return bonusCenter + BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
+                return (bonusCenter + BONUS_PROGRESSION + (100 - (top/2))) * currentProgress
+                #return bonusCenter + BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
             else:
-               return bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
+                return (bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS) * currentProgress
+                #return bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
         else:
             #No progress
             return 1e-3
