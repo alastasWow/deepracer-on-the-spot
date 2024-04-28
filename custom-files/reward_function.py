@@ -1,7 +1,7 @@
 import math
 import uuid
 
-MAX_SPEED = 5
+MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
