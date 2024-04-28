@@ -1,10 +1,10 @@
 import math
 
-MAX_SPEED = 4
+MAX_SPEED = 3.5
 MIN_SPEED = 1
-MAX_STEERING = 30
-MIN_STEERING = -30
-FORCAST = 6
+MAX_STEERING = 25
+MIN_STEERING = -25
+FORCAST = 10
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 
@@ -19,15 +19,15 @@ def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
         out_of_track = False
         for j in range(i + 1, len(waypoints_middle)):
             d = dist(waypoints[waypoints_middle[i]], pos, waypoints[waypoints_middle[j]])
-            if d >= 0.5 * (track_width + VEHICLE_WIDTH):
+            if d >= 0.5 * track_width:
                 out_of_track = True
                 break
         if not out_of_track:
             forcast_index = waypoints_middle[i]
             break
-    print('projected waypoint:', forcast_index)
+    # print('projected waypoint:', forcast_index)
     diff_index = forcast_index - next_waypoint if forcast_index > next_waypoint else forcast_index + len(waypoints) - 1 - next_waypoint
-    print('diff_index:', diff_index)
+    # print('diff_index:', diff_index)
     return forcast_index, diff_index
 
 
@@ -129,15 +129,20 @@ class Reward:
         track_width = params['track_width']
         distance_from_center = params['distance_from_center']
         progress = params['progress']
-        steps = params['steps']
+        speed = params['speed']
+        waypoints = params['waypoints']
+        closest_waypoints = params['closest_waypoints']
         MAX_DIST = 0.5 * (track_width + VEHICLE_WIDTH)
         if all_wheels_on_track and distance_from_center < MAX_DIST:
-            reward = progress - self.prev_progress
-            print({
-                'progress': progress,
-                'steps': steps,
-                'reward': reward,
-            })
+            potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
+            car_pos = (params['x'], params['y'])
+            forcast_car_index, diff_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, track_width, car_pos)
+            # w1 = round(1 - (diff_index / FORCAST) ** 3, 2)
+            w1 = math.exp(-50*(diff_index / FORCAST) ** 15)
+            w2 = 1 - w1
+            reward = round(100 * w1, 2) * (progress - self.prev_progress) + round(100 * w2, 2) * (speed / MAX_SPEED)
+            print(f'{closest_waypoints}, {diff_index}')
+            print(f'{reward} = {round(100 * w1, 2)} * {progress - self.prev_progress} + {round(100 * w2, 2)} * {speed / MAX_SPEED}')
         self.prev_progress = progress
         self.total_reward += reward
         is_complete_lap = int(progress) == 100
