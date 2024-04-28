@@ -98,18 +98,21 @@ class RewardV3:
     def manageRewardForProgression(self,params,currentProgress):
         if (currentProgress>0):
             distance_from_center = params['distance_from_center']
-            if (distance_from_center>0.4):
+            if (distance_from_center>0.6):
                 #100% ok 12% échec à 0.8
                 return 1e-2
             if (distance_from_center<0.2807):
                 #100% ok 0% échec
-                #bonusCenter = 22
-                bonusCenter = 35
+                #0.8 bonusCenter = 22
+                #0.4 bonusCenter = 35
+                bonusCenter = 33
             else:
                 #Here we are between 0.2807 and 0.8
                 #bonusCenter = math.exp(6*(0.8-distance_from_center))-0.99
                 #from 34.84 to 0.1
-                bonusCenter = math.exp(30*(0.4-distance_from_center))-0.9
+                #bonusCenter = math.exp(30*(0.4-distance_from_center))-0.9
+                #from 34.84 to 0.1
+                bonusCenter = math.exp(11*(0.6-distance_from_center))-0.9
             top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
             if top < TOP_CONST:
                return bonusCenter + BONUS_PROGRESSION + ((100 - (top / 2)) * currentProgress)
