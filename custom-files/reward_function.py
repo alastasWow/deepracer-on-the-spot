@@ -1,7 +1,7 @@
 import math
 import uuid
 
-MAX_SPEED = 5
+MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 30
 MIN_STEERING = -30
@@ -152,7 +152,7 @@ class RewardV3:
             #No progresse do not change maxLastProgress
             if (not wasOut):
                 #No progress strange : we keep previous totalProgress and lastProgress
-                #print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+                print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
                 return 0
             else:
                 #No progress due to out
@@ -170,7 +170,7 @@ class RewardV3:
             #No progress
             if (not wasOut):
                 #No progress strange : we keep previous totalProgress and lastProgress
-                #print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+                print(f'### marcelWasOut - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
                 return 0
             else:
                 #No progress due to out
@@ -259,7 +259,7 @@ reward_state = RewardV3()
 
 
 def reward_function(params):
-    #print('params =>', params)
+    print('params =>', params)
     reward = reward_state.reward_function(params)
     print('reward final result: ', reward)
     return float(min(1e3, max(reward, 1e-3)))
