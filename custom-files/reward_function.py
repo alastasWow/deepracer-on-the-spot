@@ -92,7 +92,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression62(params,currentProgress)
+            return self.manageRewardForProgression65(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -127,7 +127,7 @@ class RewardV3:
             #No progress
             return 1e-3
 
-    def manageRewardForProgression62(self,params,currentProgress):
+    def manageRewardForProgression64(self,params,currentProgress):
         if (currentProgress>0):
             #We made progress
             distance_from_center = params['distance_from_center']
@@ -140,6 +140,31 @@ class RewardV3:
                 if (top<TOP_CONST):
                     #We did less than TOP_CONST from to 1 to 561
                     bonusTop=1+((TOP_CONST-top)*4)
+                    #Normal track from 2 to 592
+                    return (bonusCenter+bonusTop)*currentProgress
+                else:
+                    #Too many top from 2 to 32
+                    return (bonusCenter+1)*currentProgress
+            else :
+                #Too far from center
+                return 1e-2
+        else :
+            #No progress
+            return 1e-3
+
+    def manageRewardForProgression65(self,params,currentProgress):
+        if (currentProgress>0):
+            #We made progress
+            distance_from_center = params['distance_from_center']
+            if (distance_from_center<0.3):
+                #We are close to center
+                #Calculate bonusCenter from 1 to 91
+                bonusCenter = max(1,((0.3-distance_from_center)*300)+1)
+                #Calculate top with punition for out
+                top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+                if (top<TOP_CONST):
+                    #We did less than TOP_CONST from to 1 to 57
+                    bonusTop=1+((TOP_CONST-top)*0.4)
                     #Normal track from 2 to 592
                     return (bonusCenter+bonusTop)*currentProgress
                 else:
