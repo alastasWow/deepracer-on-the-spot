@@ -11,7 +11,7 @@ VEHICLE_WIDTH = 0.225
 TOP_CONST = 140
 BONUS_PROGRESSION = 5
 BONUS_NOT_OUT_BUT_NO_PROGRESS = 1
-PUNITION_SORTIE_FACTOR = 1.1
+PUNITION_SORTIE_FACTOR = 0
 ELIGIBILITY_BONUS_END_PROGRESSION = 99
 BONUS_END_PROGRESSION_FACTOR = 60
 
@@ -92,13 +92,13 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression(params,currentProgress)
+            return self.manageRewardForProgression62(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
             return 1e-3
 
-    def manageRewardForProgression(self,params,currentProgress):
+    def manageRewardForProgression61(self,params,currentProgress):
         if (currentProgress>0):
             distance_from_center = params['distance_from_center']
             if (distance_from_center>0.6):
@@ -124,6 +124,31 @@ class RewardV3:
                 return (bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS) * currentProgress
                 #return bonusCenter + BONUS_NOT_OUT_BUT_NO_PROGRESS + currentProgress
         else:
+            #No progress
+            return 1e-3
+
+    def manageRewardForProgression62(self,params,currentProgress):
+        if (currentProgress>0):
+            #We made progress
+            distance_from_center = params['distance_from_center']
+            if (distance_from_center<0.3):
+                #We are close to center
+                #Calculate bonusCenter from 1 to 31
+                bonusCenter = max(1,((0.3-distance_from_center)*100)+1)
+                #Calculate top with punition for out
+                top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+                if (top<TOP_CONST):
+                    #We did less than TOP_CONST from to 1 to 561
+                    bonusTop=1+((TOP_CONST-top)*4)
+                    #Normal track from 2 to 592
+                    return (bonusCenter+bonusTop)*currentProgress
+                else:
+                    #Too many top from 2 to 32
+                    return (bonusCenter+1)*currentProgress
+            else :
+                #Too far from center
+                return 1e-2
+        else :
             #No progress
             return 1e-3
 
@@ -200,11 +225,15 @@ class RewardV3:
     def endLap(self,params):
         progress = params['progress']
         is_offtrack = params['is_offtrack']
+        is_reversed = params['is_reversed']
         if (is_offtrack):
             print(f'### marcelOffTrack - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
             return True
         if (progress==100):
             print(f'### marcel100Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            return True
+        if (is_reversed):
+            print(f'### marcelReversed - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
             return True
         if (progress>99.5):
             print(f'### marcel99Progression - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, is_offtrack {is_offtrack}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, lastClosestWayPoint {self.lastClosestWayPoint}')
