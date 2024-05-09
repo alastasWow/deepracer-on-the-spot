@@ -102,7 +102,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression70(params,currentProgress)
+            return self.manageRewardForProgression71(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -298,6 +298,37 @@ class RewardV3:
             else :
                 #Too far from center from 2 to 194
                 return (1+bonusProgress)*currentProgress
+        else :
+            #No progress
+            return 1e-3
+
+    def manageRewardForProgression71(self,params,currentProgress):
+        if (currentProgress>0):
+            #We made progress
+            progress = params['progress']
+            #Calculate bonus progression from 1 to 193
+            bonusProgress=math.exp(progress/19)
+            distance_from_center = params['distance_from_center']
+            track_length = params['track_length']
+            topMax = track_length*FACTOR_TOP
+            factorRewardTop = FACTOR_REWARD_TOP/track_length
+            if (distance_from_center<0.3):
+                #We are close to center
+                #Calculate bonusCenter from 1 to 31
+                bonusCenter = max(1,((0.3-distance_from_center)*100)+1)
+                #Calculate top with punition for out
+                top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+                if (top<topMax):
+                    #We did less than TOP_CONST from to 1 to 561
+                    bonusTop=1+((topMax-top)*factorRewardTop)
+                    #Normal track from 3 to 785
+                    return (bonusProgress+bonusCenter+bonusTop)*currentProgress
+                else:
+                    #Too many top from 3 to 225
+                    return (bonusProgress+bonusCenter+1)*currentProgress
+            else :
+                #Too far from center from 1.1 to 20.3
+                return (1+(bonusProgress/10))*currentProgress
         else :
             #No progress
             return 1e-3
