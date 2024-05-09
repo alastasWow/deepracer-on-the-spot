@@ -333,7 +333,7 @@ class RewardV3:
             #No progress
             return 1e-3
 
-    def manageRewardForProgression72(self,params,currentProgress):
+    def manageRewardForProgression72b(self,params,currentProgress):
         if (currentProgress>0):
             #We made progress
             progress = params['progress']
