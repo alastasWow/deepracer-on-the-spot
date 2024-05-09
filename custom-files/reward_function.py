@@ -86,7 +86,7 @@ class RewardV3:
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.totalReward += rewardCap
         self.totalRewardWithoutCap +=reward
-        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, totalRewardWithoutCap {self.totalRewardWithoutCap}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, rewardCap{rewardCap]}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, totalRewardWithoutCap {self.totalRewardWithoutCap}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
         if (self.endLap(params)):
             self.reInit()
         return rewardCap
@@ -102,7 +102,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression67(params,currentProgress)
+            return self.manageRewardForProgression69(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -233,6 +233,37 @@ class RewardV3:
                 else:
                     #Too many top from 2 to 32
                     return (bonusCenter+1)*currentProgress
+            else :
+                #Too far from center
+                return 1*currentProgress
+        else :
+            #No progress
+            return 1e-3
+
+    def manageRewardForProgression69(self,params,currentProgress):
+        if (currentProgress>0):
+            #We made progress
+            progress = params['progress']
+            #Calculate bonus progression from 1 to 193
+            bonusProgress=math.exp(progress/19)
+            distance_from_center = params['distance_from_center']
+            track_length = params['track_length']
+            topMax = track_length*FACTOR_TOP
+            factorRewardTop = FACTOR_REWARD_TOP/track_length
+            if (distance_from_center<0.3):
+                #We are close to center
+                #Calculate bonusCenter from 1 to 31
+                bonusCenter = max(1,((0.3-distance_from_center)*100)+1)
+                #Calculate top with punition for out
+                top = self.stepCount + (PUNITION_SORTIE_FACTOR * 45 * self.outCount)
+                if (top<topMax):
+                    #We did less than TOP_CONST from to 1 to 561
+                    bonusTop=1+((topMax-top)*factorRewardTop)
+                    #Normal track from 3 to 785
+                    return (bonusProgress+bonusCenter+bonusTop)*currentProgress
+                else:
+                    #Too many top from 3 to 225
+                    return (bonusProgress+bonusCenter+1)*currentProgress
             else :
                 #Too far from center
                 return 1*currentProgress
