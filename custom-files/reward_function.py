@@ -86,7 +86,7 @@ class RewardV3:
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.totalReward += rewardCap
         self.totalRewardWithoutCap +=reward
-        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, rewardCap{rewardCap]}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, totalRewardWithoutCap {self.totalRewardWithoutCap}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
+        print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, rewardCap {rewardCap}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, totalRewardWithoutCap {self.totalRewardWithoutCap}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
         if (self.endLap(params)):
             self.reInit()
         return rewardCap
