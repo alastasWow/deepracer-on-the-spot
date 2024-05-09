@@ -71,9 +71,11 @@ class RewardV3:
         #Closest Way Point
         self.lastClosestWayPoint = 0
         #Step
-        self.stepCount = 0
+        self.stepCount = 1
 
     def reward_function(self, params):
+        if (self.startLap(params)):
+            self.reInit()
         speed = params['speed']
         closest_waypoints = params['closest_waypoints']
         all_wheels_on_track = params['all_wheels_on_track']
@@ -306,6 +308,15 @@ class RewardV3:
                 return True
         else:
             self.outLastTime = False
+            return False
+
+    def startLap(self,params):
+        currentStep = params['steps']
+        progress = params['progress']
+        if (currentStep==2):
+            print(f'### marcelWillInit - iteration {self.iteration}, uuid {self.uuid}, progress {progress}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, totalRewardWithoutCap {self.totalRewardWithoutCap}, lastClosestWayPoint {self.lastClosestWayPoint}')
+            return True
+        else:
             return False
 
     def endLap(self,params):
