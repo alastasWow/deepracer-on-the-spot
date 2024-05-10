@@ -113,14 +113,13 @@ class RewardV3:
         self.manageStep(params)
         #Check if out
         wasOut = self.outLastTime
-        self.manageOut(params)):
+        self.manageOut(params)
         #Don't care about out
         #Check progression
         currentProgress = self.manageProgression(params,wasOut)
         self.lastCurrentProgress=currentProgress
         #Attibruate reward
         return self.manageRewardForProgression76(params,currentProgress)
-
 
     def manageRewardForProgression61(self,params,currentProgress):
         if (currentProgress>0):
