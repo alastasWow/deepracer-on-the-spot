@@ -82,7 +82,7 @@ class RewardV3:
         distance_from_center = params['distance_from_center']
         newClosestWayPoint = params['closest_waypoints'][0]
         self.lastClosestWayPoint = newClosestWayPoint
-        reward = self.regularStep(params)
+        reward = self.regularStep80(params)
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.totalReward += rewardCap
         self.totalRewardWithoutCap +=reward
@@ -119,7 +119,7 @@ class RewardV3:
         currentProgress = self.manageProgression(params,wasOut)
         self.lastCurrentProgress=currentProgress
         #Attibruate reward
-        return self.manageRewardForProgression76(params,currentProgress)
+        return self.manageRewardForProgression77(params,currentProgress)
 
     def manageRewardForProgression61(self,params,currentProgress):
         if (currentProgress>0):
