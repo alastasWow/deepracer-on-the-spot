@@ -102,11 +102,25 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression76(params,currentProgress)
+            return self.manageRewardForProgression77(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
             return 1e-3
+
+    def regularStepv80(self,params):
+        #Manage Step
+        self.manageStep(params)
+        #Check if out
+        wasOut = self.outLastTime
+        self.manageOut(params)):
+        #Don't care about out
+        #Check progression
+        currentProgress = self.manageProgression(params,wasOut)
+        self.lastCurrentProgress=currentProgress
+        #Attibruate reward
+        return self.manageRewardForProgression76(params,currentProgress)
+
 
     def manageRewardForProgression61(self,params,currentProgress):
         if (currentProgress>0):
@@ -448,7 +462,32 @@ class RewardV3:
                 #Normal track from 2 to 1079
                 return (bonusProgress+bonusTop)*currentProgress
             else:
-                #Too many top from 2 to 519
+                #Too many top from 2 to 489
+                return (bonusProgress+1)*currentProgress
+        else :
+            #No progress
+            return 1e-3
+
+    def manageRewardForProgression77(self,params,currentProgress):
+        if (currentProgress>0):
+            #We made progress
+            progress = params['progress']
+            #Calculate bonus progression from 4 to 488
+            bonusProgress=math.exp((progress+30)/21)
+            distance_from_center = params['distance_from_center']
+            track_length = params['track_length']
+            #topMax = track_length*FACTOR_TOP
+            topMax=139
+            #factorRewardTop = FACTOR_REWARD_TOP/track_length
+            #Calculate top without punition
+            top = self.stepCount
+            if (top<topMax):
+                #We did less than TOP_CONST from to 1 to 281
+                bonusTop=1+((561-math.exp(top/22))/2)
+                #Normal track from 2 to 769
+                return (bonusProgress+bonusTop)*currentProgress
+            else:
+                #Too many top from 2 to 489
                 return (bonusProgress+1)*currentProgress
         else :
             #No progress
