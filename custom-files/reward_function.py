@@ -82,7 +82,7 @@ class RewardV3:
         distance_from_center = params['distance_from_center']
         newClosestWayPoint = params['closest_waypoints'][0]
         self.lastClosestWayPoint = newClosestWayPoint
-        reward = self.regularStep80(params)
+        reward = self.regularStepv80(params)
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.totalReward += rewardCap
         self.totalRewardWithoutCap +=reward
