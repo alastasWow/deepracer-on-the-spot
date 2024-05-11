@@ -103,7 +103,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression79(params,currentProgress)
+            return self.manageRewardForProgression77(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
