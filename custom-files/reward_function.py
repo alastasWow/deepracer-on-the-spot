@@ -660,10 +660,10 @@ class RewardV3:
                 #FactorTop from 100% to 61%
                 factorTop=math.log(2.52-(top*top*top/1805000),10)+0.6
                 #Normal track from 181 to 859
-                return ((bonusProgress+bonusCenter)*factorTop*currentProgress
+                return (bonusProgress+bonusCenter)*factorTop*currentProgress
             else:
                 #We give only 30% of bonus Progress
-                return ((bonusProgress+bonusCenter)*0.3*currentProgress
+                return (bonusProgress+bonusCenter)*0.3*currentProgress
         else :
             #No progress
             return 1e-3
