@@ -614,8 +614,6 @@ class RewardV3:
             #No progress
             return 1e-3
 
-
-e^{\frac{1}{x+0.18}}-1
     def bonusEndProgression(self,params,top):
         progress = params['progress']
         if (progress>ELIGIBILITY_BONUS_END_PROGRESSION):
