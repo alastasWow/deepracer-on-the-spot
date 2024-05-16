@@ -1,7 +1,7 @@
 import math
 
 MAX_SPEED = 4
-MIN_SPEED = 1
+MIN_SPEED = 0.5
 MAX_STEERING = 25
 MIN_STEERING = -25
 MAX_VISION = 45
@@ -127,7 +127,6 @@ def forcast_v4(next_waypoint_index, waypoints, pos, heading, max_dist):
 class Reward:
     prev_progress = 0
     prev_steering = 0
-    prev_on_track = True
     total_reward = 0
 
     def __init__(self):
@@ -136,15 +135,14 @@ class Reward:
     def reset(self):
         self.prev_progress = 0
         self.prev_steering = 0
-        self.prev_on_track = True
         self.total_reward = 0
 
     def shortcut(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
-        direction_ratio = diff_direction / MAX_VISION
+        # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        # progress_diff = progress - self.prev_progress
-        res = round((1 - speed_ratio) * (1 - direction_ratio), 3)
+        progress_diff = progress - self.prev_progress
+        res = round((1 - speed_ratio) * progress_diff, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
@@ -173,25 +171,17 @@ class Reward:
         track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
         # Convert to degree
         track_direction = math.degrees(track_direction)
-        # true_heading = heading + steering
-        # if true_heading > 180:
-        #     true_heading = 360 - true_heading
-        # elif true_heading < -180:
-        #     true_heading = 360 + true_heading
         true_heading = heading
         # Calculate the difference between the track direction and the heading direction of the car
         direction_diff = abs(track_direction - true_heading)
         if direction_diff > 180:
             direction_diff = 360 - direction_diff
         max_dist = 0.5 * (track_width + VEHICLE_WIDTH)
-        if self.prev_on_track and distance_from_center < max_dist and direction_diff < 90:
-            # forcast_car_index, diff_index = forcast_v2(closest_waypoints[1], waypoints, MAX_DIST, car_coord, speed, true_heading)
-            forcast_index, diff_index = forcast_v4(closest_waypoints[1], waypoints, car_coord, true_heading, max_dist)
-            # potential_forcast_index = (closest_waypoints[1] + FORCAST) % len(waypoints)
-            # forcast_car_index, diff_index = forcast(potential_forcast_index, closest_waypoints[1], waypoints, MAX_DIST, car_coord)
-            # print(forcast_car_index, diff_index)
-            # forcast_car_coord = waypoints[forcast_car_index]
-            # r = diff_index / FORCAST
+        forcast_index, diff_index = forcast_v4(closest_waypoints[1], waypoints, car_coord, true_heading, max_dist)
+        print(f'forcast: {closest_waypoints}, {diff_index}, {forcast_index}')
+        if distance_from_center < max_dist \
+                and direction_diff < 90 \
+                and diff_index > 0:
             w1 = round(1 / (1 + math.exp(diff_index - 8)), 3)
             w2 = round(1 - w1, 3)
             forcast_car_coord = waypoints[forcast_index]
@@ -200,20 +190,15 @@ class Reward:
             forcast_direction_diff = abs(forcast_direction - heading)
             if forcast_direction_diff > 180:
                 forcast_direction_diff = 360 - forcast_direction_diff
-            print(f'variables: {closest_waypoints}, '
-                  f'{diff_index}, '
-                  f'{forcast_index}, '
-                  f'{(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
+            print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
                   # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
-                  # f'{progress - self.prev_progress}, '
-                  f'{1 - (forcast_direction_diff / MAX_VISION)}')
+                  f'{progress - self.prev_progress}, '
+                  f'{(forcast_direction_diff / MAX_VISION)}')
             x, y = self.shortcut(speed, steering, progress, forcast_direction_diff), self.speedup(speed, steering, progress, forcast_direction_diff)
             reward = round((w1 * x + w2 * y), 3)
             print(f'reward {reward} = ({w1} * {x} + {w2} * {y})')
-            self.prev_progress = progress
-            self.prev_steering = steering
-        else:
-            self.prev_on_track = False
+        self.prev_progress = progress
+        self.prev_steering = steering
         self.total_reward += reward
         is_complete_lap = int(progress) == 100
         is_offtrack = params['is_offtrack']
