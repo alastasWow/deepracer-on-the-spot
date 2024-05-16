@@ -103,7 +103,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression772(params,currentProgress)
+            return self.manageRewardForProgression773(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -539,6 +539,31 @@ class RewardV3:
             else:
                 #Too many top from 2 to 489
                 return (bonusProgress+1)*currentProgress/2
+        else :
+            #No progress
+            return 1e-3
+
+    def manageRewardForProgression773(self,params,currentProgress):
+        if (currentProgress>0):
+            #We made progress
+            progress = params['progress']
+            #Calculate bonus progression from 4 to 488
+            bonusProgress=math.exp((progress+30)/21)
+            distance_from_center = params['distance_from_center']
+            track_length = params['track_length']
+            #topMax = track_length*FACTOR_TOP
+            topMax=120
+            #factorRewardTop = FACTOR_REWARD_TOP/track_length
+            #Calculate top without punition
+            top = self.stepCount
+            if (top<topMax):
+                #We did less than TOP_CONST from to 1 to 281
+                bonusTop=1+((561-math.exp(top/22))/1.2)
+                #Normal track from 2 to 769
+                return (bonusProgress+bonusTop)*currentProgress/1.2
+            else:
+                #Too many top from 2 to 489
+                return (bonusProgress+1)*currentProgress/1.2
         else :
             #No progress
             return 1e-3
