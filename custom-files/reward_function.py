@@ -72,6 +72,17 @@ class RewardV3:
         self.lastClosestWayPoint = 0
         #Step
         self.stepCount = 1
+        #Bonus bank
+        self.bonusBank1=0
+        self.bonusBank2=0
+        self.bonusBank3=0
+        self.bonusBank4=0
+        self.bonusBank5=0
+        self.bonusBank6=0
+        self.bonusBank7=0
+        self.bonusBank8=0
+        self.bonusBank9=0
+        self.bonusBank10=0
 
     def reward_function(self, params):
         if (self.startLap(params)):
@@ -103,7 +114,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression773(params,currentProgress)
+            return self.manageRewardForProgression774(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -567,6 +578,27 @@ class RewardV3:
         else :
             #No progress
             return 1e-3
+
+    def manageRewardForProgression774(self,params,currentProgress):
+        reward = self.manageRewardForProgression773(params,currentProgress)
+        #We add the reward bank factor of 10 top ago
+        reward = reward + self.bonusBank10
+        distance_from_center = params['distance_from_center']
+        track_width = params['track_width']
+        #We determine the bankFactor : farest we are from center higher it is
+        bankFactor = distance_from_center/track_width
+        self.bonusBank10=self.bonusBank9
+        self.bonusBank9=self.bonusBank8
+        self.bonusBank8=self.bonusBank7
+        self.bonusBank7=self.bonusBank6
+        self.bonusBank6=self.bonusBank5
+        self.bonusBank5=self.bonusBank4
+        self.bonusBank4=self.bonusBank3
+        self.bonusBank3=self.bonusBank2
+        self.bonusBank2=self.bonusBank1
+        self.bonusBank1=bankFactor*reward
+        #Calcul this step reward
+        return (1-bankFactor)*reward
 
     def manageRewardForProgression78(self,params,currentProgress):
         #distance_from_center = params['distance_from_center']
