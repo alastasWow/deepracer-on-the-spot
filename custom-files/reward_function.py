@@ -147,10 +147,10 @@ class Reward:
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
-        # direction_ratio = diff_direction / MAX_VISION
+        direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio * (1.5 - (abs(steering) / MAX_STEERING)), 3)
+        res = round(speed_ratio * (1 - direction_ratio), 3)
         return res
 
     def reward_function(self, params):
@@ -193,8 +193,8 @@ class Reward:
             print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
                   # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
                   f'{abs(steering) / MAX_STEERING}, '
+                  f'{(forcast_direction_diff / MAX_VISION)}, '
                   f'{progress - self.prev_progress}')
-            # f'{(forcast_direction_diff / MAX_VISION)}')
             x, y = self.turn(speed, steering, progress, forcast_direction_diff), self.speedup(speed, steering, progress, forcast_direction_diff)
             reward = round((w1 * x + w2 * y), 3)
             print(f'reward {reward} = ({w1} * {x} + {w2} * {y})')
