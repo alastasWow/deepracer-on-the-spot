@@ -4,12 +4,12 @@ MAX_SPEED = 4
 MIN_SPEED = 1
 MAX_STEERING = 25
 MIN_STEERING = -25
-MAX_VISION = 50
-MIN_VISION = -50
+MAX_VISION = 30
+MIN_VISION = -30
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
-SWITCH = 6
+SWITCH = 7
 
 
 # def direction_line(pos, speed, heading):
@@ -148,10 +148,10 @@ class Reward:
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
-        direction_ratio = diff_direction / MAX_VISION
+        # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         progress_diff = progress - self.prev_progress
-        res = round(speed_ratio * (1 - direction_ratio) * progress_diff, 3)
+        res = round(speed_ratio * (1.5 - (abs(steering) / MAX_STEERING)) * progress_diff, 3)
         return res
 
     def reward_function(self, params):
