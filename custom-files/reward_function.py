@@ -1,7 +1,7 @@
 import math
 
 MAX_SPEED = 4
-MIN_SPEED = 0.5
+MIN_SPEED = 1
 MAX_STEERING = 25
 MIN_STEERING = -25
 MAX_VISION = 50
@@ -9,6 +9,7 @@ MIN_VISION = -50
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
+SWITCH = 6
 
 
 # def direction_line(pos, speed, heading):
@@ -138,19 +139,19 @@ class Reward:
         self.total_reward = 0
 
     def turn(self, speed, steering, progress, diff_direction):
-        # speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
+        speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         progress_diff = progress - self.prev_progress
-        res = round((abs(steering) / MAX_STEERING) * progress_diff, 3)
+        res = round((1 - speed_ratio) * (abs(steering) / MAX_STEERING) * progress_diff, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio * (1 - direction_ratio), 3)
+        progress_diff = progress - self.prev_progress
+        res = round(speed_ratio * (1 - direction_ratio) * progress_diff, 3)
         return res
 
     def reward_function(self, params):
@@ -182,7 +183,7 @@ class Reward:
         if distance_from_center < max_dist \
                 and direction_diff < 90 \
                 and diff_index > 0:
-            w1 = round(1 / (1 + math.exp(diff_index - 6)), 3)
+            w1 = round(1 / (1 + math.exp(diff_index - SWITCH)), 3)
             w2 = round(1 - w1, 3)
             forcast_car_coord = waypoints[forcast_index]
             forcast_direction = math.atan2(forcast_car_coord[1] - car_coord[1], forcast_car_coord[0] - car_coord[0])
