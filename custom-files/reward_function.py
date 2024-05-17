@@ -1,11 +1,11 @@
 import math
 
 MAX_SPEED = 4
-MIN_SPEED = 1
+MIN_SPEED = 0.5
 MAX_STEERING = 25
 MIN_STEERING = -25
-MAX_VISION = 45
-MIN_VISION = -45
+MAX_VISION = 50
+MIN_VISION = -50
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
@@ -137,20 +137,20 @@ class Reward:
         self.prev_steering = 0
         self.total_reward = 0
 
-    def shortcut(self, speed, steering, progress, diff_direction):
-        speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
+    def turn(self, speed, steering, progress, diff_direction):
+        # speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         progress_diff = progress - self.prev_progress
-        res = round((1 - speed_ratio) * progress_diff, 3)
+        res = round((abs(steering) / MAX_STEERING) * progress_diff, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        progress_diff = progress - self.prev_progress
-        res = round(speed_ratio * progress_diff, 3)
+        # progress_diff = progress - self.prev_progress
+        res = round(speed_ratio * (1.5 - (abs(steering) / MAX_STEERING)), 3)
         return res
 
     def reward_function(self, params):
@@ -182,7 +182,7 @@ class Reward:
         if distance_from_center < max_dist \
                 and direction_diff < 90 \
                 and diff_index > 0:
-            w1 = round(1 / (1 + math.exp(diff_index - 7)), 3)
+            w1 = round(1 / (1 + math.exp(diff_index - 6)), 3)
             w2 = round(1 - w1, 3)
             forcast_car_coord = waypoints[forcast_index]
             forcast_direction = math.atan2(forcast_car_coord[1] - car_coord[1], forcast_car_coord[0] - car_coord[0])
@@ -192,9 +192,10 @@ class Reward:
                 forcast_direction_diff = 360 - forcast_direction_diff
             print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
                   # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
+                  f'{abs(steering) / MAX_STEERING}, '
                   f'{progress - self.prev_progress}')
             # f'{(forcast_direction_diff / MAX_VISION)}')
-            x, y = self.shortcut(speed, steering, progress, forcast_direction_diff), self.speedup(speed, steering, progress, forcast_direction_diff)
+            x, y = self.turn(speed, steering, progress, forcast_direction_diff), self.speedup(speed, steering, progress, forcast_direction_diff)
             reward = round((w1 * x + w2 * y), 3)
             print(f'reward {reward} = ({w1} * {x} + {w2} * {y})')
         self.prev_progress = progress
