@@ -114,7 +114,7 @@ class RewardV3:
             currentProgress = self.manageProgression(params,wasOut)
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
-            return self.manageRewardForProgression776(params,currentProgress)
+            return self.manageRewardForProgression777(params,currentProgress)
         else:
             #Out
             self.lastCurrentProgress=0
@@ -637,6 +637,26 @@ class RewardV3:
         self.bonusBank1=bankFactor*reward
         #Calcul this step reward
         return (1-bankFactor)*reward
+
+    def manageRewardForProgression776(self,params,currentProgress):
+        reward = self.manageRewardForProgression77(params,currentProgress)
+        #We add the reward bank factor of 10 top ago
+        reward = reward + (self.bonusBank10*0.4) + (self.bonusBank9*0.24) + (self.bonusBank8*0.15) + (self.bonusBank7*0.09) + (self.bonusBank6*0.05) + (self.bonusBank5*0.03) + (self.bonusBank4*0.02) + (self.bonusBank3*0.01) + (self.bonusBank2*0.01) + (self.bonusBank1*0)
+        #bankFactor 30% for futur
+        bankFactor = 0.1
+        self.bonusBank10=self.bonusBank9
+        self.bonusBank9=self.bonusBank8
+        self.bonusBank8=self.bonusBank7
+        self.bonusBank7=self.bonusBank6
+        self.bonusBank6=self.bonusBank5
+        self.bonusBank5=self.bonusBank4
+        self.bonusBank4=self.bonusBank3
+        self.bonusBank3=self.bonusBank2
+        self.bonusBank2=self.bonusBank1
+        self.bonusBank1=bankFactor*reward
+        #Calcul this step reward
+        return (1-bankFactor)*reward
+
 
     def manageRewardForProgression78(self,params,currentProgress):
         #distance_from_center = params['distance_from_center']
