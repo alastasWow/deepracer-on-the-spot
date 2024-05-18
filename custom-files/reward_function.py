@@ -4,8 +4,8 @@ MAX_SPEED = 4
 MIN_SPEED = 0
 MAX_STEERING = 25
 MIN_STEERING = -25
-MAX_VISION = 30
-MIN_VISION = -30
+MAX_VISION = 45
+MIN_VISION = -45
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
@@ -144,7 +144,7 @@ class Reward:
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         # steering_ratio_1 = abs(steering) / MAX_STEERING
         progress_diff = progress - self.prev_progress
-        res = round((1 - speed_ratio) + progress_diff, 3)
+        res = round((1 - speed_ratio) * progress_diff, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
@@ -152,7 +152,7 @@ class Reward:
         direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio + (1 - direction_ratio), 3)
+        res = round(speed_ratio * (1 - direction_ratio), 3)
         return res
 
     def reward_function(self, params):
