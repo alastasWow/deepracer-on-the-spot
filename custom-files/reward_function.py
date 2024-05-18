@@ -638,7 +638,7 @@ class RewardV3:
         #Calcul this step reward
         return (1-bankFactor)*reward
 
-    def manageRewardForProgression776(self,params,currentProgress):
+    def manageRewardForProgression777(self,params,currentProgress):
         reward = self.manageRewardForProgression77(params,currentProgress)
         #We add the reward bank factor of 10 top ago
         reward = reward + (self.bonusBank10*0.4) + (self.bonusBank9*0.24) + (self.bonusBank8*0.15) + (self.bonusBank7*0.09) + (self.bonusBank6*0.05) + (self.bonusBank5*0.03) + (self.bonusBank4*0.02) + (self.bonusBank3*0.01) + (self.bonusBank2*0.01) + (self.bonusBank1*0)
