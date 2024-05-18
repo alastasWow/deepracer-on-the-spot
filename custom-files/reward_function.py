@@ -1,7 +1,7 @@
 import math
 
 MAX_SPEED = 4
-MIN_SPEED = 1
+MIN_SPEED = 0
 MAX_STEERING = 25
 MIN_STEERING = -25
 MAX_VISION = 30
@@ -142,17 +142,17 @@ class Reward:
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        steering_ratio_1 = abs(steering) / MAX_STEERING
+        # steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round((1 - speed_ratio) + steering_ratio_1, 3)
+        res = round((1 - speed_ratio), 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
-        direction_ratio = diff_direction / MAX_VISION
+        # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio + (1 - direction_ratio), 3)
+        res = round(speed_ratio, 3)
         return res
 
     def reward_function(self, params):
@@ -168,6 +168,11 @@ class Reward:
         heading = params['heading']
         car_coord = (params['x'], params['y'])
         # Calculate the direction of the center line based on the closest waypoints
+        heading = heading + steering
+        if heading > 180:
+            heading -= 360
+        elif heading < -180:
+            heading += 360
         next_point = waypoints[closest_waypoints[1]]
         prev_point = waypoints[closest_waypoints[0]]
         track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
@@ -196,7 +201,7 @@ class Reward:
                   # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
                   f'{abs(steering) / MAX_STEERING}, '
                   f'{(forcast_direction_diff / MAX_VISION)}')
-                  # f'{progress - self.prev_progress}')
+            # f'{progress - self.prev_progress}')
             x, y = self.turn(speed, steering, progress, forcast_direction_diff), self.speedup(speed, steering, progress, forcast_direction_diff)
             reward = round((w1 * x + w2 * y), 3)
             print(f'reward {reward} = ({w1} * {x} + {w2} * {y})')
