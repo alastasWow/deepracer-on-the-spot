@@ -142,16 +142,17 @@ class Reward:
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
+        steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round((1 - speed_ratio), 3)
+        res = round((1 - speed_ratio) + steering_ratio_1, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
-        # direction_ratio = diff_direction / MAX_VISION
+        direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio, 3)
+        res = round(speed_ratio + (1 - direction_ratio), 3)
         return res
 
     def reward_function(self, params):
@@ -182,16 +183,19 @@ class Reward:
         if all_wheels_on_track and distance_from_center < max_dist and direction_diff < 90:
             w1 = round(1 / (1 + math.exp(diff_index - SWITCH)), 3)
             w2 = round(1 - w1, 3)
-            forcast_car_coord = waypoints[forcast_index]
-            forcast_direction = math.atan2(forcast_car_coord[1] - car_coord[1], forcast_car_coord[0] - car_coord[0])
-            forcast_direction = math.degrees(forcast_direction)
-            forcast_direction_diff = abs(forcast_direction - heading)
-            if forcast_direction_diff > 180:
-                forcast_direction_diff = 360 - forcast_direction_diff
-            print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, ')
+            if diff_index > 0:
+                forcast_car_coord = waypoints[forcast_index]
+                forcast_direction = math.atan2(forcast_car_coord[1] - car_coord[1], forcast_car_coord[0] - car_coord[0])
+                forcast_direction = math.degrees(forcast_direction)
+                forcast_direction_diff = abs(forcast_direction - heading)
+                if forcast_direction_diff > 180:
+                    forcast_direction_diff = 360 - forcast_direction_diff
+            else:
+                forcast_direction_diff = MAX_VISION
+            print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
                   # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
-                  # f'{abs(steering) / MAX_STEERING}, '
-                  # f'{(forcast_direction_diff / MAX_VISION)}, '
+                  f'{abs(steering) / MAX_STEERING}, '
+                  f'{(forcast_direction_diff / MAX_VISION)}')
                   # f'{progress - self.prev_progress}')
             x, y = self.turn(speed, steering, progress, forcast_direction_diff), self.speedup(speed, steering, progress, forcast_direction_diff)
             reward = round((w1 * x + w2 * y), 3)
