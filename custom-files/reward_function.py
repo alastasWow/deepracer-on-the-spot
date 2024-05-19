@@ -85,6 +85,8 @@ class RewardV3:
         self.bonusBank10=0
         #Bank Out
         self.bonusOutBank=0
+        #Bank Cap
+        self.bonusCap=0
 
     def reward_function(self, params):
         if (self.startLap(params)):
@@ -97,8 +99,9 @@ class RewardV3:
         self.lastClosestWayPoint = newClosestWayPoint
         #reward = self.regularStep(params)
         #reward = self.regularStepv80(params)
-        reward = self.regularStepv81(params)
+        reward = self.regularStepv82(params)
         rewardCap = float(min(1e3, max(reward, 1e-3)))
+        self.bonusCap=reward-rewardCap
         self.totalReward += rewardCap
         self.totalRewardWithoutCap +=reward
         print(f'### jerome - iteration {self.iteration}, uuid {self.uuid}, reward {reward}, rewardCap {rewardCap}, speed {speed}, all_wheels_on_track {all_wheels_on_track}, distance_from_center {distance_from_center}, stepCount {self.stepCount}, lastCurrentProgress {self.lastCurrentProgress}, lastProgress {self.lastProgress}, maxLastProgress {self.maxLastProgress}, totalProgress {self.totalProgress}, consumedEndProgressionBonus {self.consumedEndProgressionBonus}, outCount {self.outCount}, outLastTime {self.outLastTime}, totalReward {self.totalReward}, totalRewardWithoutCap {self.totalRewardWithoutCap}, lastClosestWayPoint {self.lastClosestWayPoint}, closest_waypoints {closest_waypoints}')
@@ -159,6 +162,33 @@ class RewardV3:
             self.lastCurrentProgress=currentProgress
             #Attibruate reward
             rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank
+            bankFactor=0.8
+            self.bonusOutBank=bankFactor*rewardTheoretical
+            return (1-bankFactor)*rewardTheoretical
+
+    def regularStepv82(self,params):
+        #Manage Step
+        self.manageStep(params)
+        #Check if out
+        wasOut = self.outLastTime
+        if (not self.manageOut(params)):
+            #Not out
+            #Check progression
+            currentProgress = self.manageProgression(params,wasOut)
+            self.lastCurrentProgress=currentProgress
+            #Attibruate reward
+            rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank+self.bonusCap
+            #No more bonusOutBank : we are on the track
+            self.bonusOutBank=0
+            return rewardTheoretical
+        else:
+            #Out
+            #We are out : we bank most of our gain
+            #Check progression
+            currentProgress = self.manageProgression(params,wasOut)
+            self.lastCurrentProgress=currentProgress
+            #Attibruate reward
+            rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank+self.bonusCap
             bankFactor=0.8
             self.bonusOutBank=bankFactor*rewardTheoretical
             return (1-bankFactor)*rewardTheoretical
