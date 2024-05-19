@@ -136,7 +136,7 @@ class RewardV3:
         #Attibruate reward
         return self.manageRewardForProgression77(params,currentProgress)
 
-    def regularStep81(self,params):
+    def regularStepv81(self,params):
         #Manage Step
         self.manageStep(params)
         #Check if out
