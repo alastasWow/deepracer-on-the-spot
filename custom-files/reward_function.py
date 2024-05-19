@@ -151,9 +151,9 @@ class Reward:
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        # steering_ratio_1 = abs(steering) / MAX_STEERING
+        steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio, 3)
+        res = round(speed_ratio * (2 - steering_ratio_1), 3)
         return res
 
     def reward_function(self, params):
