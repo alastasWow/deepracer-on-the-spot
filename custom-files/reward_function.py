@@ -83,6 +83,8 @@ class RewardV3:
         self.bonusBank8=0
         self.bonusBank9=0
         self.bonusBank10=0
+        #Bank Out
+        self.bonusOutBank=0
 
     def reward_function(self, params):
         if (self.startLap(params)):
@@ -93,8 +95,9 @@ class RewardV3:
         distance_from_center = params['distance_from_center']
         newClosestWayPoint = params['closest_waypoints'][0]
         self.lastClosestWayPoint = newClosestWayPoint
-        reward = self.regularStep(params)
+        #reward = self.regularStep(params)
         #reward = self.regularStepv80(params)
+        reward = self.regularStepv81(params)
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.totalReward += rewardCap
         self.totalRewardWithoutCap +=reward
@@ -132,6 +135,33 @@ class RewardV3:
         self.lastCurrentProgress=currentProgress
         #Attibruate reward
         return self.manageRewardForProgression77(params,currentProgress)
+
+    def regularStep81(self,params):
+        #Manage Step
+        self.manageStep(params)
+        #Check if out
+        wasOut = self.outLastTime
+        if (not self.manageOut(params)):
+            #Not out
+            #Check progression
+            currentProgress = self.manageProgression(params,wasOut)
+            self.lastCurrentProgress=currentProgress
+            #Attibruate reward
+            rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank
+            #No more bonusOutBank : we are on the track
+            self.bonusOutBank=0
+            return rewardTheoretical
+        else:
+            #Out
+            #We are out : we bank most of our gain
+            #Check progression
+            currentProgress = self.manageProgression(params,wasOut)
+            self.lastCurrentProgress=currentProgress
+            #Attibruate reward
+            rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank
+            bankFactor=0.8
+            self.bonusOutBank=bankFactor*rewardTheoretical
+            return (1-bankFactor)*rewardTheoretical
 
     def manageRewardForProgression61(self,params,currentProgress):
         if (currentProgress>0):
