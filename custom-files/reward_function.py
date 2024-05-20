@@ -206,9 +206,9 @@ class Reward:
             # f'{progress - self.prev_progress}')
             x = self.turn(speed, steering, progress, forcast_direction_diff)
             y = self.speedup(speed, steering, progress, forcast_direction_diff)
-            z = progress - self.prev_progress if progress - self.prev_progress > 1 else 0
-            reward = round(w1 * x + w2 * y + z, 3)
-            print(f'reward {reward} = {w1} * {x} + {w2} * {y} + {z}')
+            # z = progress - self.prev_progress if progress - self.prev_progress > 1 else 0
+            reward = round(w1 * x + w2 * y, 3)
+            print(f'reward {reward} = {w1} * {x} + {w2} * {y}')
         self.prev_progress = progress
         self.prev_steering = steering
         self.total_reward += reward
