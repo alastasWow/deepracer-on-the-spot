@@ -10,6 +10,7 @@ FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
 SWITCH = 7
+REWARD_FASTEST = 20
 
 
 # def direction_line(pos, speed, heading):
@@ -128,7 +129,8 @@ def forcast_v4(next_waypoint_index, waypoints, pos, heading, max_dist):
 class Reward:
     prev_progress = 0
     prev_steering = 0
-    total_reward = 0
+    best_time = 10
+    best_reward = REWARD_FASTEST
 
     def __init__(self):
         self.reset()
@@ -136,7 +138,6 @@ class Reward:
     def reset(self):
         self.prev_progress = 0
         self.prev_steering = 0
-        self.total_reward = 0
 
     def turn(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
@@ -153,7 +154,7 @@ class Reward:
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round(2 * speed_ratio, 3)
+        res = round(speed_ratio, 3)
         return res
 
     def reward_function(self, params):
@@ -211,13 +212,19 @@ class Reward:
             print(f'reward {reward} = {w1} * {x} + {w2} * {y}')
         self.prev_progress = progress
         self.prev_steering = steering
-        self.total_reward += reward
         is_complete_lap = int(progress) == 100
         is_offtrack = params['is_offtrack']
         is_reversed = params['is_reversed']
         is_crashed = params['is_crashed']
         is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
         if is_final_step:
+            if is_complete_lap:
+                time = steps / STEPS_PER_SECOND
+                if time < self.best_time:
+                    self.best_time = time
+                    self.best_reward += 5
+                    print(f'time {self.best_time} with best reward {self.best_reward}')
+                    reward += self.best_reward
             self.reset()
         return float(min(1e3, max(reward, 1e-3)))
 
