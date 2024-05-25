@@ -99,7 +99,8 @@ class RewardV3:
         self.lastClosestWayPoint = newClosestWayPoint
         #reward = self.regularStep(params)
         #reward = self.regularStepv80(params)
-        reward = self.regularStepv82(params)
+        #reward = self.regularStepv82(params)
+        reward = self.regularStepv83(params)
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.bonusCap=reward-rewardCap
         self.totalReward += rewardCap
@@ -190,6 +191,33 @@ class RewardV3:
             #Attibruate reward
             rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank+self.bonusCap
             bankFactor=0.8
+            self.bonusOutBank=bankFactor*rewardTheoretical
+            return (1-bankFactor)*rewardTheoretical
+
+    def regularStepv83(self,params):
+        #Manage Step
+        self.manageStep(params)
+        #Check if out
+        wasOut = self.outLastTime
+        if (not self.manageOut(params)):
+            #Not out
+            #Check progression
+            currentProgress = self.manageProgression(params,wasOut)
+            self.lastCurrentProgress=currentProgress
+            #Attibruate reward
+            rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank+self.bonusCap
+            #No more bonusOutBank : we are on the track
+            self.bonusOutBank=0
+            return rewardTheoretical
+        else:
+            #Out
+            #We are out : we bank most of our gain
+            #Check progression
+            currentProgress = self.manageProgression(params,wasOut)
+            self.lastCurrentProgress=currentProgress
+            #Attibruate reward
+            rewardTheoretical=self.manageRewardForProgression77(params,currentProgress)+self.bonusOutBank+self.bonusCap
+            bankFactor=0.95
             self.bonusOutBank=bankFactor*rewardTheoretical
             return (1-bankFactor)*rewardTheoretical
 
