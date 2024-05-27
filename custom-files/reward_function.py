@@ -101,8 +101,8 @@ class RewardV3:
         #reward = self.regularStepv80(params)
         #reward = self.regularStepv82(params)
         #reward = self.regularStepv83(params)
-        #reward = self.regularStepv84(params)
-        reward = self.regularStepv86(params)
+        reward = self.regularStepv84(params)
+        #reward = self.regularStepv86(params)
         rewardCap = float(min(1e3, max(reward, 1e-3)))
         self.bonusCap=reward-rewardCap
         self.totalReward += rewardCap
