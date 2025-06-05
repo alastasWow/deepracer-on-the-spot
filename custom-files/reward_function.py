@@ -9,7 +9,7 @@ MIN_VISION = -30
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
-SWITCH = 7
+SWITCH = 8
 REWARD_FASTEST = 20
 
 
@@ -152,7 +152,7 @@ class Reward:
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        steering_ratio_1 = abs(steering) / MAX_STEERING
+        # steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
         res = round(speed_ratio, 3)
         return res
@@ -187,8 +187,8 @@ class Reward:
             direction_diff = 360 - direction_diff
         max_dist = 0.5 * (track_width + VEHICLE_WIDTH)
         forcast_index, diff_index = forcast_v4(closest_waypoints[1], waypoints, car_coord, heading, max_dist)
-        print(f'forcast: {closest_waypoints}, {diff_index}, {forcast_index}')
-        if all_wheels_on_track and distance_from_center < max_dist and direction_diff < 90:
+        # print(f'forcast: {closest_waypoints}, {diff_index}, {forcast_index}')
+        if distance_from_center < max_dist and direction_diff < 90:
             w1 = round(1 / (1 + math.exp(diff_index - SWITCH)), 3)
             w2 = round(1 - w1, 3)
             if diff_index > 0:
@@ -200,10 +200,10 @@ class Reward:
                     forcast_direction_diff = 360 - forcast_direction_diff
             else:
                 forcast_direction_diff = MAX_VISION
-            print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
-                  # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
-                  f'{abs(steering) / MAX_STEERING}, '
-                  f'{(forcast_direction_diff / MAX_VISION)}')
+            # print(f'variables: {(speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)}, '
+            #       # f'{0.2 * (1 - (abs(steering - self.prev_steering) / (2 * MAX_STEERING)))}, '
+            #       f'{abs(steering) / MAX_STEERING}, '
+            #       f'{(forcast_direction_diff / MAX_VISION)}')
             # f'{progress - self.prev_progress}')
             x = self.turn(speed, steering, progress, forcast_direction_diff)
             y = self.speedup(speed, steering, progress, forcast_direction_diff)
