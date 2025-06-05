@@ -145,7 +145,7 @@ class Reward:
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round(1 - speed_ratio, 3) * steering_ratio_1
+        res = round(1 - speed_ratio, 3) + steering_ratio_1
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
@@ -154,7 +154,7 @@ class Reward:
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio, 3) * (1 - steering_ratio_1)
+        res = round(speed_ratio, 3) + (1 - steering_ratio_1)
         return res
 
     def reward_function(self, params):
