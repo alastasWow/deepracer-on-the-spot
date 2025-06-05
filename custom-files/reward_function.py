@@ -9,52 +9,8 @@ MIN_VISION = -30
 FORCAST = 15
 STEPS_PER_SECOND = 15
 VEHICLE_WIDTH = 0.225
-SWITCH = 6
+SWITCH = 7
 REWARD_FASTEST = 20
-
-
-# def direction_line(pos, speed, heading):
-#     x, y = pos
-#     x1, y1 = x + (speed * math.cos(math.radians(heading))), y + (speed * math.sin(math.radians(heading)))
-#     a = (y1 - y) / (x1 - x)
-#     c = y - a * x
-#     return a, -1, c
-#
-#
-# def dist_from_line(pos, line):
-#     x1, y1 = pos
-#     a, b, c = line
-#     return abs(a * x1 + b * y1 + c) / math.sqrt(a ** 2 + b ** 2)
-
-# def forcast_v2(next_waypoint_index, waypoints, max_dist, pos, speed, heading):
-#     line = direction_line(pos, speed / STEPS_PER_SECOND, heading)
-#     forcast_index = next_waypoint_index
-#     depth = 0
-#     while dist_from_line(waypoints[forcast_index], line) < max_dist:
-#         depth += 1
-#         forcast_index = (forcast_index + 1) % len(waypoints)
-#     return (forcast_index - 1) % len(waypoints), depth
-
-# def forcast(start_forcast_index, next_waypoint, waypoints, track_width, pos):
-#     forcast_index = next_waypoint
-#     if start_forcast_index > next_waypoint:
-#         waypoints_middle = [i for i in range(start_forcast_index, next_waypoint - 1, -1)]
-#     else:
-#         waypoints_middle = [i for i in range(start_forcast_index, -1, -1)] + [i for i in range(len(waypoints) - 1, next_waypoint - 1, -1)]
-#     for i in range(len(waypoints_middle)):
-#         out_of_track = False
-#         for j in range(i + 1, len(waypoints_middle)):
-#             d = dist(waypoints[waypoints_middle[i]], pos, waypoints[waypoints_middle[j]])
-#             if d >= 0.5 * track_width:
-#                 out_of_track = True
-#                 break
-#         if not out_of_track:
-#             forcast_index = waypoints_middle[i]
-#             break
-#     # print('projected waypoint:', forcast_index)
-#     diff_index = forcast_index - next_waypoint if forcast_index > next_waypoint else forcast_index + len(waypoints) - 1 - next_waypoint
-#     # print('diff_index:', diff_index)
-#     return forcast_index, diff_index
 
 
 def dist(p1, p2, p3):
@@ -68,34 +24,6 @@ def direction_waypoint(pos, waypoint):
     res = math.degrees(waypoint_direction)
     return res if res >= 0 else res + 360
 
-
-# def forcast_v3(next_waypoint_index, waypoints, pos, heading, max_dist):
-#     tmp_heading = heading if heading >= 0 else heading + 360
-#     r_line_direction, l_line_direction = tmp_heading + MIN_VISION, tmp_heading + MAX_VISION
-#     start_forcast_index = (next_waypoint_index + FORCAST - 1) % len(waypoints)
-#     if start_forcast_index > next_waypoint_index:
-#         middle_waypoints = [i for i in range(start_forcast_index, next_waypoint_index - 1, -1)]
-#     else:
-#         middle_waypoints = [i for i in range(start_forcast_index, -1, -1)] + [i for i in range(len(waypoints) - 1, next_waypoint_index - 1, -1)]
-#     diff_index = len(middle_waypoints)
-#     for i in range(len(middle_waypoints)):
-#         # check within cone
-#         waypoint_direction = direction_waypoint(pos, waypoints[middle_waypoints[i]])
-#         if r_line_direction <= waypoint_direction <= l_line_direction:
-#             visible = True
-#             for j in range(i + 1, len(middle_waypoints)):
-#                 d = dist(waypoints[middle_waypoints[i]], pos, waypoints[middle_waypoints[j]])
-#                 if d >= max_dist:
-#                     visible = False
-#                     break
-#             if visible:
-#                 diff_index = len(middle_waypoints) - i
-#                 break
-#             else:
-#                 diff_index -= 1
-#         else:
-#             diff_index -= 1
-#     return True, diff_index
 
 def forcast_v4(next_waypoint_index, waypoints, pos, heading, max_dist):
     tmp_heading = heading if heading >= 0 else heading + 360
@@ -143,22 +71,20 @@ class Reward:
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        steering_ratio_1 = abs(steering) / MAX_STEERING
+        # steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        # res = round(1 - speed_ratio, 3)
-        res = round((1 / (speed_ratio + 0.1)) - 0.9, 3)
-        # res = round((1 / speed_ratio) - 1, 3)
+        res = round(1 - speed_ratio, 3)
+        # res = round((1 / (speed_ratio + 0.1)) - 0.9, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
         speed_ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         # direction_ratio = diff_direction / MAX_VISION
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
-        steering_ratio_1 = abs(steering) / MAX_STEERING
+        # steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        # res = round(speed_ratio, 3)
-        res = round((1 / (1.1 - speed_ratio)) - 0.9, 3)
-        # res = round((1 / (1 - speed_ratio)) - 1, 3)
+        res = round(speed_ratio, 3)
+        # res = round((1 / (1.1 - speed_ratio)) - 0.9, 3)
         return res
 
     def reward_function(self, params):
@@ -216,15 +142,15 @@ class Reward:
         is_reversed = params['is_reversed']
         is_crashed = params['is_crashed']
         is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-        # if is_final_step:
-        #     if is_complete_lap:
-        #         time = steps / STEPS_PER_SECOND
-        #         if time < self.best_time:
-        #             self.best_time = time
-        #             self.best_reward += REWARD_FASTEST / 2
-        #             print(f'time {self.best_time} with best reward {self.best_reward}')
-        #             reward += self.best_reward
-        #     self.reset()
+        if is_final_step:
+            if is_complete_lap:
+                time = steps / STEPS_PER_SECOND
+                if time < self.best_time:
+                    self.best_time = time
+                    self.best_reward += REWARD_FASTEST
+                    print(f'time {self.best_time} with best reward {self.best_reward}')
+                    reward += self.best_reward
+            self.reset()
         return float(min(1e3, max(reward, 1e-3)))
 
 
