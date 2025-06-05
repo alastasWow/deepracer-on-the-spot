@@ -145,7 +145,9 @@ class Reward:
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round(1 - speed_ratio, 3) + steering_ratio_1
+        # res = round(1 - speed_ratio, 3)
+        res = round((1 / (speed_ratio + 0.1)) - 0.9, 3)
+        # res = round((1 / speed_ratio) - 1, 3)
         return res
 
     def speedup(self, speed, steering, progress, diff_direction):
@@ -154,7 +156,9 @@ class Reward:
         # steering_ratio = abs(steering - self.prev_steering) / (2 * MAX_STEERING)
         steering_ratio_1 = abs(steering) / MAX_STEERING
         # progress_diff = progress - self.prev_progress
-        res = round(speed_ratio, 3) + (1 - steering_ratio_1)
+        # res = round(speed_ratio, 3)
+        res = round((1 / (1.1 - speed_ratio)) - 0.9, 3)
+        # res = round((1 / (1 - speed_ratio)) - 1, 3)
         return res
 
     def reward_function(self, params):
@@ -212,15 +216,15 @@ class Reward:
         is_reversed = params['is_reversed']
         is_crashed = params['is_crashed']
         is_final_step = is_complete_lap or is_offtrack or is_reversed or is_crashed
-        if is_final_step:
-            if is_complete_lap:
-                time = steps / STEPS_PER_SECOND
-                if time < self.best_time:
-                    self.best_time = time
-                    self.best_reward += 5
-                    print(f'time {self.best_time} with best reward {self.best_reward}')
-                    reward += self.best_reward
-            self.reset()
+        # if is_final_step:
+        #     if is_complete_lap:
+        #         time = steps / STEPS_PER_SECOND
+        #         if time < self.best_time:
+        #             self.best_time = time
+        #             self.best_reward += REWARD_FASTEST / 2
+        #             print(f'time {self.best_time} with best reward {self.best_reward}')
+        #             reward += self.best_reward
+        #     self.reset()
         return float(min(1e3, max(reward, 1e-3)))
 
 
